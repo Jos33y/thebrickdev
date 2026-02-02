@@ -1,50 +1,48 @@
 # The Brick Dev Portal
 
 <p align="center">
-  <img src="public/brick-logo.svg" alt="The Brick Dev" width="80" />
+  <img src="public/og-image.png" alt="The Brick Dev" width="200" />
 </p>
 
 <p align="center">
-  <strong>Private business management portal for The Brick Dev Studios</strong>
+  Internal business portal for The Brick Dev Studios
 </p>
 
 <p align="center">
-  <a href="https://thebrickdev.com">Website</a> •
+  <a href="https://thebrickdev.com">Website</a> ·
   <a href="mailto:hello@thebrickdev.com">Contact</a>
 </p>
 
 ---
 
-## Overview
+## About
 
-A custom-built admin portal for managing clients, invoices, and payments. Designed to streamline freelance business operations and support financial documentation requirements.
+This is the internal admin system we use to run The Brick Dev Studios. It handles client management, invoicing, and payment tracking so we can focus on what we do best: building websites, apps, and platforms that grow businesses.
 
-## Features
+After 45+ projects and 5+ years of freelancing, we needed something tailored to how we work. So we built it.
 
-- **Client Management** — Track prospects, active clients, and project history
-- **Invoice Generation** — Professional invoices with multiple currencies and payment terms
-- **Payment Tracking** — Record bank transfers, platform payments, and crypto transactions
-- **Email Integration** — Send invoices directly to clients
-- **Dashboard Analytics** — Revenue tracking and business insights
+## What it does
 
-## Tech Stack
+- **Clients** - Manage prospects and active clients in one place
+- **Invoices** - Generate and send invoices in USD, EUR, GBP, or NGN
+- **Payments** - Track bank transfers, platform payments (Grey, Payoneer, Wise), and crypto
+- **Dashboard** - Revenue overview and monthly income tracking
+
+## Built with
 
 - React
 - Supabase
 - Vercel
 
-## Status
+## The Brick Dev Studios
 
-🔒 **Private Project** — This repository contains proprietary business tools for The Brick Dev Studios.
+We build websites, web apps, mobile apps, and backend systems for startups and growing businesses. Some of our recent work includes Locappoint, Hairbytimablaq, BlackTribe Fashion, and Opsyn Technologies.
 
-## Contact
-
-**The Brick Dev Studios**  
-📧 hello@thebrickdev.com  
-🌐 [thebrickdev.com](https://thebrickdev.com)
+Check out our portfolio at [thebrickdev.com](https://thebrickdev.com)
 
 ---
 
-<p align="center">
-  <sub>Built with 🧱 by The Brick Dev</sub>
-</p>
+🔒 Private repository
+
+**The Brick Dev Studios**  
+[thebrickdev.com](https://thebrickdev.com) · hello@thebrickdev.com
