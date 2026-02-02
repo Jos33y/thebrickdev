@@ -14,7 +14,8 @@ dist-ssr
 .env
 .env.local
 .env.*.local
-
+README.md
+structure_brickdev.txt
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
