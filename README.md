@@ -1,16 +1,50 @@
-# React + Vite
+# The Brick Dev Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <img src="public/brick-logo.svg" alt="The Brick Dev" width="80" />
+</p>
 
-Currently, two official plugins are available:
+<p align="center">
+  <strong>Private business management portal for The Brick Dev Studios</strong>
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+<p align="center">
+  <a href="https://thebrickdev.com">Website</a> •
+  <a href="mailto:hello@thebrickdev.com">Contact</a>
+</p>
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Overview
 
-## Expanding the ESLint configuration
+A custom-built admin portal for managing clients, invoices, and payments. Designed to streamline freelance business operations and support financial documentation requirements.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+- **Client Management** — Track prospects, active clients, and project history
+- **Invoice Generation** — Professional invoices with multiple currencies and payment terms
+- **Payment Tracking** — Record bank transfers, platform payments, and crypto transactions
+- **Email Integration** — Send invoices directly to clients
+- **Dashboard Analytics** — Revenue tracking and business insights
+
+## Tech Stack
+
+- React
+- Supabase
+- Vercel
+
+## Status
+
+🔒 **Private Project** — This repository contains proprietary business tools for The Brick Dev Studios.
+
+## Contact
+
+**The Brick Dev Studios**  
+📧 hello@thebrickdev.com  
+🌐 [thebrickdev.com](https://thebrickdev.com)
+
+---
+
+<p align="center">
+  <sub>Built with 🧱 by The Brick Dev</sub>
+</p>
