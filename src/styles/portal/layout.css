@@ -1,16 +1,17 @@
 /**
  * ==========================================================================
- * PORTAL LAYOUT STYLES - Premium Compact Design
+ * LAYOUT - Premium Design
  * ==========================================================================
+ * Matches JSX: PortalLayout.jsx
  */
 
-/* --------------------------------------------------------------------------
-   Portal Root
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   PORTAL ROOT
+   ========================================================================== */
 
 .portal {
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background: var(--bg-primary);
   color: var(--text-primary);
 }
 
@@ -19,15 +20,15 @@
   min-height: 100vh;
 }
 
-/* --------------------------------------------------------------------------
-   Sidebar - Compact
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   SIDEBAR
+   ========================================================================== */
 
 .portal-sidebar {
   width: 220px;
   min-width: 220px;
-  background-color: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -38,22 +39,22 @@
 }
 
 .portal-sidebar__logo {
-  padding: 16px 14px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 18px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .portal-sidebar__brand-text {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 1px;
 }
 
 .portal-sidebar__brand {
   font-size: 13px;
-  font-weight: var(--font-bold);
+  font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.3px;
   line-height: 1.2;
@@ -61,7 +62,7 @@
 
 .portal-sidebar__brand-sub {
   font-size: 10px;
-  font-weight: var(--font-semibold);
+  font-weight: 600;
   color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -69,7 +70,7 @@
 
 .portal-sidebar__nav {
   flex: 1;
-  padding: 12px 10px;
+  padding: 14px 10px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -80,32 +81,32 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text-secondary);
   font-size: 13px;
-  font-weight: var(--font-medium);
-  transition: all var(--transition-fast);
+  font-weight: 500;
+  transition: all 0.15s ease;
   text-decoration: none;
 }
 
 .portal-sidebar__link-icon {
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.6;
   width: 18px;
   height: 18px;
 }
 
 .portal-sidebar__link:hover {
-  background-color: var(--bg-tertiary);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-primary);
 }
 
 .portal-sidebar__link:hover .portal-sidebar__link-icon {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 .portal-sidebar__link--active {
-  background-color: var(--color-primary-muted);
+  background: rgba(197, 75, 26, 0.12);
   color: var(--color-primary);
 }
 
@@ -113,9 +114,9 @@
   opacity: 1;
 }
 
-/* --------------------------------------------------------------------------
-   Main Content Area
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   MAIN CONTENT AREA
+   ========================================================================== */
 
 .portal-main {
   flex: 1;
@@ -125,19 +126,19 @@
   margin-left: 220px;
 }
 
-/* --------------------------------------------------------------------------
-   Top Bar - Compact
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   TOP BAR
+   ========================================================================== */
 
 .portal-topbar {
   height: 56px;
   min-height: 56px;
-  background-color: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
@@ -146,28 +147,28 @@
 .portal-topbar__left {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 .portal-topbar__right {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 .portal-topbar__title {
   font-size: 15px;
-  font-weight: var(--font-semibold);
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-/* --------------------------------------------------------------------------
-   Content Area - Compact
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   CONTENT AREA
+   ========================================================================== */
 
 .portal-content {
   flex: 1;
-  padding: 20px 24px;
+  padding: 24px;
   overflow-y: auto;
 }
 
@@ -177,9 +178,9 @@
   width: 100%;
 }
 
-/* --------------------------------------------------------------------------
-   Page Structure - Compact
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   PAGE STRUCTURE
+   ========================================================================== */
 
 .portal-page {
   display: flex;
@@ -194,8 +195,8 @@
 }
 
 .portal-page__header h1 {
-  font-size: 22px;
-  font-weight: var(--font-bold);
+  font-size: 20px;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
@@ -213,58 +214,9 @@
   gap: 16px;
 }
 
-/* --------------------------------------------------------------------------
-   Sidebar User Section - Compact
-   -------------------------------------------------------------------------- */
-
-.portal-sidebar__user {
-  padding: 12px;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.portal-sidebar__user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.portal-sidebar__user-email {
-  font-size: 11px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.portal-sidebar__logout {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: var(--font-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.portal-sidebar__logout:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-color-strong);
-  color: var(--text-primary);
-}
-
-/* --------------------------------------------------------------------------
-   Responsive
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 
 @media (max-width: 1024px) {
   .portal-sidebar {
@@ -277,14 +229,16 @@
   }
   
   .portal-content {
-    padding: 16px 20px;
+    padding: 20px;
   }
 }
 
 @media (max-width: 768px) {
   .portal-sidebar {
     transform: translateX(-100%);
-    transition: transform var(--transition-base);
+    transition: transform 0.25s ease;
+    width: 260px;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.3);
   }
   
   .portal-sidebar.is-open {
@@ -298,4 +252,24 @@
   .portal-content {
     padding: 16px;
   }
+  
+  .portal-topbar {
+    padding: 0 16px;
+  }
+}
+
+/* Mobile menu overlay */
+.portal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: calc(var(--z-sticky) - 1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+.portal-overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
 }

@@ -1,0 +1,94 @@
+/**
+ * Settings Page Styles
+ * Premium portal settings with card-based sections
+ */
+
+/* ==========================================================================
+   SETTINGS LAYOUT
+   ========================================================================== */
+
+.portal-settings {
+  max-width: 900px;
+}
+
+.settings__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ==========================================================================
+   SETTINGS FORM
+   ========================================================================== */
+
+.settings__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .settings__form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings__form-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 8px 0;
+}
+
+.settings__form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   SETTINGS MESSAGES
+   ========================================================================== */
+
+.settings__message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.settings__message--success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.settings__message--error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.settings__message svg {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   FORM FIELD HINT (for individual fields)
+   ========================================================================== */
+
+.form-field__hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}

@@ -24,7 +24,7 @@ const PortalLayout = () => {
 
   const handleLogout = async () => {
     const result = await logout();
-    if (result.success) {
+    if (result.success) { 
       navigate('/portal/login', { replace: true });
     }
   };

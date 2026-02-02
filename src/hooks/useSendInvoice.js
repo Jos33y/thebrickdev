@@ -1,7 +1,9 @@
 /**
  * useSendInvoice - Hook for sending invoices via Vercel Serverless Function
  * 
- * Simple setup:
+ * Now integrates with Settings for company info - no more hardcoded values!
+ * 
+ * Setup:
  * 1. Put api/send-invoice.js in your project root
  * 2. Add RESEND_API_KEY to Vercel environment variables
  * 3. Done!
@@ -9,14 +11,49 @@
 
 import { useState } from 'react';
 import { formatCurrency, formatDate } from '../lib/formatters';
-import { COMPANY_INFO } from '../lib/constants';
+import { supabase } from '../lib/supabase';
+
+// Default fallbacks if settings not loaded
+const DEFAULT_COMPANY = {
+  company_name: 'My Business',
+  company_email: '',
+  company_website: '',
+};
+
+/**
+ * Fetch settings for email generation
+ */
+const fetchSettings = async () => {
+  const { data, error } = await supabase
+    .from('settings')
+    .select('company_name, company_email, company_website')
+    .single();
+
+  if (error) {
+    console.warn('Could not fetch settings for email, using defaults');
+    return DEFAULT_COMPANY;
+  }
+
+  return data;
+};
 
 /**
  * Generate email HTML
  */
-const generateEmailHTML = ({ invoiceNumber, recipientName, amount, currency, dueDate, customMessage }) => {
+const generateEmailHTML = ({ 
+  invoiceNumber, 
+  recipientName, 
+  amount, 
+  currency, 
+  dueDate, 
+  customMessage,
+  companyName,
+  companyWebsite 
+}) => {
   const message = customMessage || 
     `Please find attached invoice ${invoiceNumber} for ${formatCurrency(amount, currency)}, due on ${formatDate(dueDate)}.`;
+
+  const websiteDisplay = companyWebsite?.replace(/^https?:\/\//, '') || '';
 
   return `
 <!DOCTYPE html>
@@ -28,7 +65,7 @@ const generateEmailHTML = ({ invoiceNumber, recipientName, amount, currency, due
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
   <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e5e5e5;">
-      <div style="font-size: 24px; font-weight: bold; color: #ea580c;">The Brick Dev Studios</div>
+      <div style="font-size: 24px; font-weight: bold; color: #ea580c;">${companyName}</div>
       <div style="font-family: monospace; font-size: 18px; color: #ea580c; margin-top: 10px;">${invoiceNumber}</div>
     </div>
     
@@ -58,8 +95,8 @@ const generateEmailHTML = ({ invoiceNumber, recipientName, amount, currency, due
     </div>
     
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e5e5; text-align: center; color: #888; font-size: 14px;">
-      <p style="margin: 0;">The Brick Dev Studios</p>
-      <p style="margin: 5px 0;">thebrickdev.com</p>
+      <p style="margin: 0;">${companyName}</p>
+      ${websiteDisplay ? `<p style="margin: 5px 0;">${websiteDisplay}</p>` : ''}
     </div>
   </div>
 </body>
@@ -70,9 +107,20 @@ const generateEmailHTML = ({ invoiceNumber, recipientName, amount, currency, due
 /**
  * Generate plain text version
  */
-const generateEmailText = ({ invoiceNumber, recipientName, amount, currency, dueDate, customMessage }) => {
+const generateEmailText = ({ 
+  invoiceNumber, 
+  recipientName, 
+  amount, 
+  currency, 
+  dueDate, 
+  customMessage,
+  companyName,
+  companyWebsite 
+}) => {
+  const websiteDisplay = companyWebsite?.replace(/^https?:\/\//, '') || '';
+  
   return `
-Invoice ${invoiceNumber} from ${COMPANY_INFO.name}
+Invoice ${invoiceNumber} from ${companyName}
 
 Hi${recipientName ? ` ${recipientName}` : ''},
 
@@ -84,8 +132,8 @@ Invoice Details:
 - Amount Due: ${formatCurrency(amount, currency)}
 
 ---
-${COMPANY_INFO.name}
-thebrickdev.com
+${companyName}
+${websiteDisplay}
   `.trim();
 };
 
@@ -101,6 +149,11 @@ export function useSendInvoice() {
     setError(null);
 
     try {
+      // Fetch company settings
+      const settings = await fetchSettings();
+      const companyName = settings.company_name || DEFAULT_COMPANY.company_name;
+      const companyWebsite = settings.company_website || '';
+
       const html = generateEmailHTML({
         invoiceNumber: invoice.invoice_number,
         recipientName: invoice.client?.name,
@@ -108,6 +161,8 @@ export function useSendInvoice() {
         currency: invoice.currency,
         dueDate: invoice.due_date,
         customMessage: message,
+        companyName,
+        companyWebsite,
       });
 
       const text = generateEmailText({
@@ -117,6 +172,8 @@ export function useSendInvoice() {
         currency: invoice.currency,
         dueDate: invoice.due_date,
         customMessage: message,
+        companyName,
+        companyWebsite,
       });
 
       // Call our Vercel serverless function
@@ -127,7 +184,7 @@ export function useSendInvoice() {
         },
         body: JSON.stringify({
           to: recipientEmail,
-          subject: `Invoice ${invoice.invoice_number} from ${COMPANY_INFO.name}`,
+          subject: `Invoice ${invoice.invoice_number} from ${companyName}`,
           html,
           text,
         }),

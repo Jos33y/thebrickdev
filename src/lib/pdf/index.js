@@ -1,10 +1,56 @@
 /**
  * PDF Utilities - Functions for generating and downloading PDFs
+ * 
+ * Now fetches company info from Settings before generating PDFs
  */
 
 import { pdf } from '@react-pdf/renderer';
 import { createElement } from 'react';
 import InvoicePDF from './InvoicePDF';
+import { supabase } from '../supabase';
+
+// Default company info fallback
+const DEFAULT_COMPANY = {
+  name: 'My Business',
+  email: '',
+  address: '',
+  website: '',
+};
+
+/**
+ * Fetch company info from settings for PDF generation
+ */
+async function fetchCompanyInfo() {
+  try {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('company_name, company_email, company_phone, company_address, company_city, company_country, company_website')
+      .single();
+
+    if (error) {
+      console.warn('Could not fetch settings for PDF, using defaults:', error.message);
+      return DEFAULT_COMPANY;
+    }
+
+    // Build address from parts
+    const address = [
+      data.company_address,
+      data.company_city,
+      data.company_country,
+    ].filter(Boolean).join(', ');
+
+    return {
+      name: data.company_name || DEFAULT_COMPANY.name,
+      email: data.company_email || '',
+      phone: data.company_phone || '',
+      address: address,
+      website: data.company_website || '',
+    };
+  } catch (err) {
+    console.warn('Failed to fetch company info:', err);
+    return DEFAULT_COMPANY;
+  }
+}
 
 /**
  * Generate and download invoice PDF
@@ -14,8 +60,13 @@ import InvoicePDF from './InvoicePDF';
  */
 export async function downloadInvoicePDF(invoice) {
   try {
-    // Generate PDF blob
-    const blob = await pdf(createElement(InvoicePDF, { invoice })).toBlob();
+    // Fetch company info from settings
+    const companyInfo = await fetchCompanyInfo();
+
+    // Generate PDF blob with company info
+    const blob = await pdf(
+      createElement(InvoicePDF, { invoice, companyInfo })
+    ).toBlob();
     
     // Create download link
     const url = URL.createObjectURL(blob);
@@ -45,7 +96,13 @@ export async function downloadInvoicePDF(invoice) {
  * @returns {Promise<Blob>}
  */
 export async function generateInvoicePDFBlob(invoice) {
-  const blob = await pdf(createElement(InvoicePDF, { invoice })).toBlob();
+  // Fetch company info from settings
+  const companyInfo = await fetchCompanyInfo();
+
+  const blob = await pdf(
+    createElement(InvoicePDF, { invoice, companyInfo })
+  ).toBlob();
+  
   return blob;
 }
 
@@ -57,7 +114,13 @@ export async function generateInvoicePDFBlob(invoice) {
  */
 export async function previewInvoicePDF(invoice) {
   try {
-    const blob = await pdf(createElement(InvoicePDF, { invoice })).toBlob();
+    // Fetch company info from settings
+    const companyInfo = await fetchCompanyInfo();
+
+    const blob = await pdf(
+      createElement(InvoicePDF, { invoice, companyInfo })
+    ).toBlob();
+    
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
     

@@ -2,6 +2,7 @@
  * InvoicePDF - PDF document for invoice generation
  * 
  * Uses @react-pdf/renderer to create professional PDFs.
+ * Now accepts companyInfo as prop from Settings instead of hardcoded COMPANY_INFO
  */
 
 import {
@@ -13,7 +14,6 @@ import {
   Svg,
   Rect,
 } from '@react-pdf/renderer';
-import { COMPANY_INFO } from '../constants';
 
 // PDF Styles
 const styles = StyleSheet.create({
@@ -304,18 +304,45 @@ const formatDate = (dateString) => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
+// Default company info fallback
+const DEFAULT_COMPANY = {
+  name: 'My Business',
+  email: '',
+  address: '',
+  website: '',
+};
+
 /**
  * Invoice PDF Document Component
+ * 
+ * @param {Object} invoice - Invoice data with client and items
+ * @param {Object} companyInfo - Company info from Settings (optional, has defaults)
  */
-const InvoicePDF = ({ invoice }) => {
+const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
   const client = invoice.client || {};
   const items = invoice.items || [];
   
+  // Merge with defaults
+  const company = {
+    ...DEFAULT_COMPANY,
+    ...companyInfo,
+  };
+
+  // Build address string from parts
+  const companyAddress = company.address || [
+    company.street,
+    company.city,
+    company.country,
+  ].filter(Boolean).join(', ');
+
   const getStatusStyle = () => {
     if (invoice.status === 'paid') return styles.statusPaid;
     if (invoice.status === 'sent') return styles.statusSent;
     return {};
   };
+
+  // Website for footer (strip protocol)
+  const websiteDisplay = company.website?.replace(/^https?:\/\//, '') || '';
 
   return (
     <Document>
@@ -327,11 +354,11 @@ const InvoicePDF = ({ invoice }) => {
               <BrickMarkLogo size={30} />
             </View>
             <View>
-              <Text style={styles.companyName}>{COMPANY_INFO.name}</Text>
-              <Text style={styles.companyInfo}>{COMPANY_INFO.email}</Text>
-              <Text style={styles.companyInfo}>{COMPANY_INFO.address}</Text>
-              {COMPANY_INFO.website && (
-                <Text style={styles.companyInfo}>{COMPANY_INFO.website}</Text>
+              <Text style={styles.companyName}>{company.name}</Text>
+              {company.email && <Text style={styles.companyInfo}>{company.email}</Text>}
+              {companyAddress && <Text style={styles.companyInfo}>{companyAddress}</Text>}
+              {company.website && (
+                <Text style={styles.companyInfo}>{websiteDisplay}</Text>
               )}
             </View>
           </View>
@@ -426,7 +453,7 @@ const InvoicePDF = ({ invoice }) => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text>thebrickdev.com</Text>
+          <Text>{websiteDisplay || company.name}</Text>
         </View>
       </Page>
     </Document>

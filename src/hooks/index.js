@@ -39,5 +39,19 @@ export {
 // Email hooks
 export { useSendInvoice } from './useSendInvoice';
 
-// Future hooks (uncomment as implemented):
-// export { useDashboard } from './useDashboard';
+// Dashboard hooks
+export { 
+  useDashboard,
+  convertCurrency 
+} from './useDashboard';
+
+// Settings hooks
+export {
+  useSettings,
+  useUpdateSettings,
+  useChangePassword,
+} from './useSettings';
+
+// Settings-integrated helpers
+export { useInvoiceDefaults } from './useInvoiceDefaults';
+export { useCompanyInfo, getCompanyInfo } from './useCompanyInfo';

@@ -1,19 +1,25 @@
 /**
  * ==========================================================================
- * PORTAL STYLES - Entry Point
+ * PORTAL STYLES - Index
  * ==========================================================================
- * 
- * All portal-specific styles. Imported from main styles/index.css
+ * Import order matters: base → components → layout → pages
  */
 
-@import './layout.css';
-@import './auth.css';
+
+/* Shared components */
 @import './components.css';
+
+/* Layout structure */
+@import './layout.css';
+
+/* Authentication pages */
+@import './auth.css';
+
+/* Page-specific styles */
 @import './clients.css';
 @import './invoices.css';
 @import './payments.css';
+@import './settings.css';
 
-/* Future imports as we build:
-
+/* Dashboard */
 @import './dashboard.css';
-*/

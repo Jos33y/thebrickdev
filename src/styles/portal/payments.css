@@ -1,55 +1,54 @@
 /**
  * ==========================================================================
- * PORTAL PAYMENTS STYLES - Premium Compact Design
+ * PAYMENTS - Premium Design
  * ==========================================================================
+ * Matches JSX: Payments.jsx, PaymentDetail.jsx, PaymentForm.jsx
  */
 
-/* --------------------------------------------------------------------------
-   Payments List Page
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   PAYMENTS LIST PAGE
+   ========================================================================== */
 
 .payments-filters {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .payments-filters .tabs {
-  padding: 0 16px;
+  padding: 0 18px;
 }
 
 .payments-filters__search {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .payments-filters__search .search-input {
   max-width: 280px;
 }
 
-/* List Filters (shared pattern) */
+/* List Filters (shared pattern used by Payments) */
 .list-filters {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .list-filters .tabs {
-  padding: 0 16px;
+  padding: 0 18px;
 }
 
 .list-filters__search {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .list-filters__search .search-input {
   max-width: 280px;
 }
 
-/* --------------------------------------------------------------------------
-   Payment Form - Premium Compact
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   PAYMENT FORM
+   ========================================================================== */
 
 .payment-form {
   display: flex;
@@ -58,11 +57,11 @@
   max-width: 800px;
 }
 
-/* Form Grid - Compact */
+/* Form Grid */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 .form-grid--3col {
@@ -74,10 +73,7 @@
 }
 
 @media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  
+  .form-grid,
   .form-grid--3col,
   .form-grid--4col {
     grid-template-columns: 1fr 1fr;
@@ -94,42 +90,42 @@
 
 /* Form Section (for type-specific details) */
 .form-section {
-  margin-top: 12px;
+  margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px dashed var(--border-color);
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
 }
 
 .form-section__title {
-  font-size: 11px;
-  font-weight: var(--font-semibold);
+  font-size: 10px;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
-/* Form Actions - Compact */
+/* Form Actions */
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin-top: 8px;
 }
 
-/* Form Error - Premium */
+/* Form Error */
 .form-error {
-  padding: 10px 14px;
+  padding: 12px 14px;
   margin-bottom: 8px;
   background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 6px;
-  color: var(--color-error);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  color: #f87171;
   font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .form-error::before {
@@ -139,11 +135,11 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  background: var(--color-error);
+  background: #ef4444;
   color: white;
   border-radius: 50%;
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 700;
   flex-shrink: 0;
 }
 
@@ -154,14 +150,14 @@
   margin-top: 4px;
 }
 
-/* --------------------------------------------------------------------------
-   Payment Detail Page
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   PAYMENT DETAIL PAGE
+   ========================================================================== */
 
 /* Detail Grid (two columns) */
 .detail-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 320px;
   gap: 20px;
 }
 
@@ -183,11 +179,10 @@
   gap: 16px;
 }
 
-/* Detail Rows - Compact */
+/* Detail Rows */
 .detail-rows {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .detail-row {
@@ -195,11 +190,17 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 10px 0;
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  gap: 16px;
 }
 
 .detail-row:last-child {
   border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-row:first-child {
+  padding-top: 0;
 }
 
 .detail-label {
@@ -215,8 +216,8 @@
 }
 
 .detail-value--large {
-  font-size: 18px;
-  font-weight: var(--font-bold);
+  font-size: 20px;
+  font-weight: 700;
   color: var(--color-primary);
 }
 
@@ -234,12 +235,12 @@
 .detail-section {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .detail-section__title {
-  font-size: 11px;
-  font-weight: var(--font-semibold);
+  font-size: 10px;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -252,17 +253,32 @@
   gap: 8px;
 }
 
-/* Invoice Link in sidebar */
+/* ==========================================================================
+   INVOICE LINK (in sidebar)
+   ========================================================================== */
+
 .invoice-link {
   display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.invoice-link svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.invoice-link > div {
+  display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .invoice-link__number {
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: var(--font-medium);
+  font-weight: 500;
   color: var(--color-primary);
   text-decoration: none;
 }
@@ -274,60 +290,59 @@
 .invoice-link__client {
   font-size: 12px;
   color: var(--text-secondary);
+  margin: 0;
 }
 
 .invoice-link__amount {
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: var(--font-medium);
+  font-weight: 500;
   color: var(--text-primary);
+  margin: 0;
 }
 
-/* Payment Amount Display */
+/* ==========================================================================
+   PAYMENT AMOUNT DISPLAY
+   ========================================================================== */
+
 .payment-amount-display {
   text-align: center;
-  padding: 20px 16px;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
 }
 
 .payment-amount-display__value {
   font-family: var(--font-mono);
   font-size: 28px;
-  font-weight: var(--font-bold);
+  font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .payment-amount-display__label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
-/* Text muted helper */
-.text-muted {
-  color: var(--text-muted);
-  font-size: 12px;
-}
-
-/* --------------------------------------------------------------------------
-   Payment Method Icons/Badges
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   PAYMENT METHOD BADGE
+   ========================================================================== */
 
 .payment-method-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 6px;
   font-size: 12px;
-  font-weight: var(--font-medium);
+  font-weight: 500;
   color: var(--text-primary);
 }
 
@@ -337,14 +352,19 @@
   opacity: 0.7;
 }
 
-/* --------------------------------------------------------------------------
-   Responsive
-   -------------------------------------------------------------------------- */
+/* Text muted helper */
+.text-muted {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 
 @media (max-width: 768px) {
   .list-filters {
     flex-direction: column;
-    gap: 0;
   }
   
   .list-filters__search {

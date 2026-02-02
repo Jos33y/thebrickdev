@@ -1,13 +1,17 @@
 /**
  * InvoiceForm - Form for creating/editing invoices
  * 
- * Includes client selection, dynamic line items, and totals calculation.
+ * Now integrates with Settings for defaults:
+ * - default_currency
+ * - default_payment_terms  
+ * - invoice_notes_template
  */
 
 import { useState, useEffect, useMemo } from 'react';
 import { Button, Input, Select, TextArea, DatePicker, Card } from '../common';
 import { PlusIcon, TrashIcon } from '../../common/Icons';
 import { useClients } from '../../../hooks/useClients';
+import { useSettings } from '../../../hooks/useSettings';
 import {
   PAYMENT_TERMS,
   PAYMENT_TERMS_LABELS,
@@ -64,22 +68,45 @@ const InvoiceForm = ({
 
   // Fetch clients for dropdown
   const { data: clients = [], isLoading: clientsLoading } = useClients();
+  
+  // Fetch settings for defaults
+  const { data: settings } = useSettings();
 
-  // Form state
+  // Get defaults from settings (with fallbacks)
+  const defaultCurrency = settings?.default_currency || 'USD';
+  const defaultPaymentTerms = settings?.default_payment_terms || PAYMENT_TERMS.NET_30;
+  const defaultNotes = settings?.invoice_notes_template || '';
+
+  // Form state - initialized with settings defaults
   const [formData, setFormData] = useState({
     client_id: preselectedClientId || '',
     issue_date: getTodayDate(),
-    payment_terms: PAYMENT_TERMS.NET_30,
-    due_date: calculateDueDate(getTodayDate(), PAYMENT_TERMS.NET_30),
-    currency: 'USD',
+    payment_terms: defaultPaymentTerms,
+    due_date: calculateDueDate(getTodayDate(), defaultPaymentTerms),
+    currency: defaultCurrency,
     tax_rate: 0,
-    notes: '',
+    notes: defaultNotes,
   });
 
   const [items, setItems] = useState([{ ...emptyLineItem }]);
   const [errors, setErrors] = useState({});
+  const [settingsApplied, setSettingsApplied] = useState(false);
 
-  // Initialize form with existing data
+  // Apply settings defaults when they load (only for new invoices)
+  useEffect(() => {
+    if (settings && !isEditing && !settingsApplied) {
+      setFormData(prev => ({
+        ...prev,
+        currency: settings.default_currency || prev.currency,
+        payment_terms: settings.default_payment_terms || prev.payment_terms,
+        notes: settings.invoice_notes_template || prev.notes,
+        due_date: calculateDueDate(prev.issue_date, settings.default_payment_terms || prev.payment_terms),
+      }));
+      setSettingsApplied(true);
+    }
+  }, [settings, isEditing, settingsApplied]);
+
+  // Initialize form with existing data (for editing)
   useEffect(() => {
     if (initialData) {
       setFormData({

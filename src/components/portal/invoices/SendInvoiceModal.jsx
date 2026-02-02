@@ -1,13 +1,15 @@
 /**
  * SendInvoiceModal - Modal for sending invoice via email
+ * 
+ * Now uses Settings for company name instead of hardcoded COMPANY_INFO
  */
 
 import { useState, useEffect } from 'react';
 import { Modal, Button, Input, TextArea } from '../common';
 import { SendIcon } from '../../common/Icons';
 import { useSendInvoice } from '../../../hooks/useSendInvoice';
+import { useSettings } from '../../../hooks/useSettings';
 import { formatCurrency, formatDate } from '../../../lib/formatters';
-import { COMPANY_INFO } from '../../../lib/constants';
 
 const SendInvoiceModal = ({
   isOpen,
@@ -16,6 +18,10 @@ const SendInvoiceModal = ({
   onSuccess,
 }) => {
   const { sendInvoice, isPending, error, reset } = useSendInvoice();
+  const { data: settings } = useSettings();
+
+  // Get company name from settings
+  const companyName = settings?.company_name || 'My Business';
 
   // Form state
   const [recipientEmail, setRecipientEmail] = useState('');
@@ -78,8 +84,8 @@ const SendInvoiceModal = ({
     if (validationError) setValidationError('');
   };
 
-  // Default message preview
-  const defaultSubject = `Invoice ${invoice?.invoice_number} from ${COMPANY_INFO.name}`;
+  // Default message preview - uses company name from settings
+  const defaultSubject = `Invoice ${invoice?.invoice_number} from ${companyName}`;
   const defaultMessage = message.trim() || 
     `Please find attached invoice ${invoice?.invoice_number} for ${formatCurrency(invoice?.total, invoice?.currency)}, due on ${formatDate(invoice?.due_date)}.`;
 

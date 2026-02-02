@@ -3,6 +3,8 @@
  * 
  * Shows invoice details, line items, payments, and status actions.
  * Includes PDF download and Send Invoice functionality.
+ * 
+ * Now uses Settings for company info instead of hardcoded COMPANY_INFO
  */
 
 import { useState } from 'react';
@@ -32,9 +34,9 @@ import {
   useUpdateInvoiceStatus,
   useDeleteInvoice,
 } from '../../hooks/useInvoices';
+import { useSettings } from '../../hooks/useSettings';
 import { downloadInvoicePDF } from '../../lib/pdf';
 import { formatCurrency, formatDate } from '../../lib/formatters';
-import { COMPANY_INFO } from '../../lib/constants';
 
 // Payment columns for table
 const paymentColumns = [
@@ -73,8 +75,18 @@ const InvoiceDetail = () => {
 
   // Data fetching
   const { data: invoice, isLoading, error, refetch } = useInvoice(id);
+  const { data: settings } = useSettings();
   const updateStatus = useUpdateInvoiceStatus();
   const deleteInvoice = useDeleteInvoice();
+
+  // Get company info from settings
+  const companyName = settings?.company_name || 'My Business';
+  const companyEmail = settings?.company_email || '';
+  const companyAddress = [
+    settings?.company_address,
+    settings?.company_city,
+    settings?.company_country,
+  ].filter(Boolean).join(', ');
 
   // Calculate payment summary
   const paymentSummary = invoice?.payments ? {
@@ -254,9 +266,9 @@ const InvoiceDetail = () => {
               {/* Header */}
               <div className="invoice-preview__header">
                 <div className="invoice-preview__company">
-                  <h2>{COMPANY_INFO.name}</h2>
-                  <p>{COMPANY_INFO.email}</p>
-                  <p>{COMPANY_INFO.address}</p>
+                  <h2>{companyName}</h2>
+                  {companyEmail && <p>{companyEmail}</p>}
+                  {companyAddress && <p>{companyAddress}</p>}
                 </div>
                 <div className="invoice-preview__meta">
                   <StatusBadge status={invoice.status} size="lg" />
