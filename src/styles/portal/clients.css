@@ -1,0 +1,207 @@
+/**
+ * ==========================================================================
+ * PORTAL CLIENTS STYLES - Premium Compact Design
+ * ==========================================================================
+ */
+
+/* --------------------------------------------------------------------------
+   Client List Page
+   -------------------------------------------------------------------------- */
+
+.clients-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.clients-filters .tabs {
+  padding: 0 16px;
+}
+
+.clients-filters__search {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.clients-filters__search .search-input {
+  max-width: 280px;
+}
+
+/* Client name cell in table */
+.client-name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.client-name-cell__name {
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.client-name-cell__company {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Client Form - Compact
+   -------------------------------------------------------------------------- */
+
+.client-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 700px;
+}
+
+.client-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.client-form__notes {
+  width: 100%;
+}
+
+.client-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .client-form__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Client Detail Page
+   -------------------------------------------------------------------------- */
+
+.client-detail__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .client-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Client Info - Compact */
+.client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.client-info__status {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.client-info__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.client-info__field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.client-info__field a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.client-info__field a:hover {
+  text-decoration: underline;
+}
+
+.client-info__icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  width: 16px;
+}
+
+.client-info__notes {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.client-info__notes h4 {
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px 0;
+}
+
+.client-info__notes p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* Client Stats - Compact */
+.client-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.client-stats__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  padding: 16px 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.client-stats__value {
+  font-size: 20px;
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.client-stats__label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 640px) {
+  .client-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Utility Classes
+   -------------------------------------------------------------------------- */
+
+.text-muted {
+  color: var(--text-muted);
+}

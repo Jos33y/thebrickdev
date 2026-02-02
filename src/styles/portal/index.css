@@ -1,0 +1,19 @@
+/**
+ * ==========================================================================
+ * PORTAL STYLES - Entry Point
+ * ==========================================================================
+ * 
+ * All portal-specific styles. Imported from main styles/index.css
+ */
+
+@import './layout.css';
+@import './auth.css';
+@import './components.css';
+@import './clients.css';
+@import './invoices.css';
+@import './payments.css';
+
+/* Future imports as we build:
+
+@import './dashboard.css';
+*/

@@ -1,0 +1,361 @@
+/**
+ * ==========================================================================
+ * PORTAL PAYMENTS STYLES - Premium Compact Design
+ * ==========================================================================
+ */
+
+/* --------------------------------------------------------------------------
+   Payments List Page
+   -------------------------------------------------------------------------- */
+
+.payments-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.payments-filters .tabs {
+  padding: 0 16px;
+}
+
+.payments-filters__search {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.payments-filters__search .search-input {
+  max-width: 280px;
+}
+
+/* List Filters (shared pattern) */
+.list-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.list-filters .tabs {
+  padding: 0 16px;
+}
+
+.list-filters__search {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.list-filters__search .search-input {
+  max-width: 280px;
+}
+
+/* --------------------------------------------------------------------------
+   Payment Form - Premium Compact
+   -------------------------------------------------------------------------- */
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 800px;
+}
+
+/* Form Grid - Compact */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.form-grid--3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.form-grid--4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .form-grid--3col,
+  .form-grid--4col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-grid,
+  .form-grid--3col,
+  .form-grid--4col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Section (for type-specific details) */
+.form-section {
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.form-section__title {
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* Form Actions - Compact */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+/* Form Error - Premium */
+.form-error {
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  color: var(--color-error);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-error::before {
+  content: "!";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--color-error);
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* Form Hint */
+.form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Payment Detail Page
+   -------------------------------------------------------------------------- */
+
+/* Detail Grid (two columns) */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Detail Rows - Compact */
+.detail-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.detail-value--large {
+  font-size: 18px;
+  font-weight: var(--font-bold);
+  color: var(--color-primary);
+}
+
+.detail-value--mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.detail-value--break {
+  word-break: break-all;
+  max-width: 180px;
+}
+
+/* Detail Section Header */
+.detail-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.detail-section__title {
+  font-size: 11px;
+  font-weight: var(--font-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Invoice Link in sidebar */
+.invoice-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-link__number {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: var(--font-medium);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.invoice-link__number:hover {
+  text-decoration: underline;
+}
+
+.invoice-link__client {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.invoice-link__amount {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+}
+
+/* Payment Amount Display */
+.payment-amount-display {
+  text-align: center;
+  padding: 20px 16px;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.payment-amount-display__value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.payment-amount-display__label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+
+/* Text muted helper */
+.text-muted {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Payment Method Icons/Badges
+   -------------------------------------------------------------------------- */
+
+.payment-method-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+}
+
+.payment-method-badge__icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .list-filters {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .list-filters__search {
+    width: 100%;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-sidebar {
+    order: -1;
+  }
+}

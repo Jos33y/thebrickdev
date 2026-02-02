@@ -1,0 +1,51 @@
+/**
+ * ==========================================================================
+ * THE BRICK DEV - Main Stylesheet
+ * ==========================================================================
+ * 
+ * CSS Architecture (Layered):
+ * 1. Variables   - Design tokens
+ * 2. Reset       - Browser normalization
+ * 3. Base        - Typography & global styles
+ * 4. Components  - Reusable UI (buttons, cards, badges)
+ * 5. Layout      - Container, footer
+ * 6. Header      - Navigation/navbar
+ * 7. Hero        - Hero section
+ * 8. Sections    - Other page sections
+ * 9. Page Loader - Loading animation
+ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+/* Layer 1: Design Tokens */
+@import './variables.css';
+
+/* Layer 2: CSS Reset */
+@import './reset.css';
+
+/* Layer 3: Base Typography & Global */
+@import './base.css';
+
+/* Layer 4: Reusable Components */
+@import './components.css';
+
+/* Layer 5: Layout (Container, Footer) */
+@import './layout.css';
+
+/* Layer 6: Header / Navbar */
+@import './header.css';
+
+/* Layer 7: Hero Section */
+@import './hero.css';
+
+/* Layer 8: Other Page Sections */
+@import './sections.css';
+
+@import './process.css';
+
+/* Layer 9: Page Loader */
+@import './pageloader.css';
+
+/* Portal styles */
+@import './portal/index.css';

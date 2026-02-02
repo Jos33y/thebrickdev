@@ -1,0 +1,162 @@
+Folder PATH listing
+Volume serial number is 5037-8652
+C:.
+|   .env.local
+|   .gitignore
+|   eslint.config.js
+|   index.html
+|   package-lock.json
+|   package.json
+|   README.md
+|   structure.txt
+|   vercel.json
+|   vite.config.js
+|   
++---public
+|   |   android-chrome-192x192.png
+|   |   android-chrome-512x512.png
+|   |   apple-touch-icon.png
+|   |   favicon-16x16.png
+|   |   favicon-32x32.png
+|   |   favicon.ico
+|   |   og-image.png
+|   |   site.webmanifest
+|   |   
+|   \---projects
+|           blacktribefashion_hero_page.png
+|           hairbytimablaq_hero_page.png
+|           locappoint_hero_page.png
+|           nova_pay_hero.png
+|           opsyntechnologies_hero_page.png
+|           
+\---src
+    |   App.jsx
+    |   main.jsx
+    |   
+    +---components
+    |   +---common
+    |   |       BrickMark.jsx
+    |   |       BrickStack.jsx
+    |   |       Icons.jsx
+    |   |       index.js
+    |   |       PageLoader.jsx
+    |   |       ServiceIcons.jsx
+    |   |       
+    |   +---layout
+    |   |       Footer.jsx
+    |   |       Header.jsx
+    |   |       index.js
+    |   |       
+    |   +---portal
+    |   |   |   index.js
+    |   |   |   
+    |   |   +---auth
+    |   |   |       index.js
+    |   |   |       LoginForm.jsx
+    |   |   |       ProtectedRoute.jsx
+    |   |   |       
+    |   |   +---clients
+    |   |   |       ClientForm.jsx
+    |   |   |       index.js
+    |   |   |       
+    |   |   +---common
+    |   |   |       Button.jsx
+    |   |   |       Card.jsx
+    |   |   |       DataTable.jsx
+    |   |   |       DatePicker.jsx
+    |   |   |       EmptyState.jsx
+    |   |   |       index.js
+    |   |   |       Input.jsx
+    |   |   |       LoadingState.jsx
+    |   |   |       Modal.jsx
+    |   |   |       PageHeader.jsx
+    |   |   |       SearchInput.jsx
+    |   |   |       Select.jsx
+    |   |   |       StatusBadge.jsx
+    |   |   |       Tabs.jsx
+    |   |   |       TextArea.jsx
+    |   |   |       
+    |   |   +---dashboard
+    |   |   |       index.js
+    |   |   |       
+    |   |   +---invoices
+    |   |   |       index.js
+    |   |   |       InvoiceForm.jsx
+    |   |   |       SendInvoiceModal.jsx
+    |   |   |       
+    |   |   \---payments
+    |   |           index.js
+    |   |           PaymentForm.jsx
+    |   |           
+    |   \---sections
+    |           CTA.jsx
+    |           Hero.jsx
+    |           index.js
+    |           Pricing.jsx
+    |           Process.jsx
+    |           Projects.jsx
+    |           Services.jsx
+    |           
+    +---data
+    |       portfolio.js
+    |       
+    +---hooks
+    |       index.js
+    |       useAuth.js
+    |       useClients.js
+    |       useInvoices.js
+    |       usePayments.js
+    |       useSendInvoice.js
+    |       
+    +---lib
+    |   |   constants.js
+    |   |   formatters.js
+    |   |   index.js
+    |   |   supabase.js
+    |   |   
+    |   \---pdf
+    |           index.js
+    |           InvoicePDF.jsx
+    |           
+    +---pages
+    |   |   Home.jsx
+    |   |   
+    |   \---portal
+    |           ClientDetail.jsx
+    |           Clients.jsx
+    |           Dashboard.jsx
+    |           index.js
+    |           InvoiceCreate.jsx
+    |           InvoiceDetail.jsx
+    |           InvoiceEdit.jsx
+    |           Invoices.jsx
+    |           Login.jsx
+    |           PaymentCreate.jsx
+    |           PaymentDetail.jsx
+    |           PaymentEdit.jsx
+    |           Payments.jsx
+    |           PortalLayout.jsx
+    |           Settings.jsx
+    |           
+    \---styles
+        |   base.css
+        |   components.css
+        |   header.css
+        |   hero.css
+        |   index.css
+        |   layout.css
+        |   pageloader.css
+        |   process.css
+        |   reset.css
+        |   sections.css
+        |   variables.css
+        |   
+        \---portal
+                auth.css
+                clients.css
+                components.css
+                index.css
+                invoices.css
+                layout.css
+                payments.css
+                
