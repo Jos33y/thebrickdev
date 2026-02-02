@@ -38,3 +38,6 @@ coverage/
 
 # Misc
 *.pem
+
+.vercel
+.env*.local
