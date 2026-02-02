@@ -26,3 +26,15 @@ structure_brickdev.txt
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel
+.vercel/
+
+# Local Netlify folder
+.netlify/
+
+# Testing
+coverage/
+
+# Misc
+*.pem

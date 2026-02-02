@@ -1,7 +1,7 @@
 # The Brick Dev Portal
 
 <p align="center">
-  <img src="public/og-image.png" alt="The Brick Dev" width="200" />
+  <img src="public/og-image.png" alt="The Brick Dev" width="800" />
 </p>
 
 <p align="center">
