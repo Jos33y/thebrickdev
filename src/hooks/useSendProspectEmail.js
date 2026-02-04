@@ -56,7 +56,11 @@ export function useSendProspectEmail() {
       // Invalidate queries to refresh UI
       queryClient.invalidateQueries({ queryKey: ['prospects'] });
       queryClient.invalidateQueries({ queryKey: ['prospect', prospect.id] });
+      queryClient.invalidateQueries({ queryKey: ['prospect'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      
+      // Force refetch dashboard immediately
+      queryClient.refetchQueries({ queryKey: ['dashboard'] });
 
       setIsPending(false);
       return { success: true, data };
