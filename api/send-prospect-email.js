@@ -6,22 +6,33 @@
  * - Creates activity on prospect
  * - Auto-advances stage if initial outreach
  * - Sets next follow-up date
+ * 
+ * Required Vercel Environment Variables:
+ * - RESEND_API_KEY
+ * - SUPABASE_URL
+ * - SUPABASE_ANON_KEY (or SUPABASE_SERVICE_ROLE_KEY for full access)
  */
 
-import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
-);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+  if (!RESEND_API_KEY) {
+    return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
+  }
+
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return res.status(500).json({ error: 'Supabase environment variables not configured' });
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   try {
     const {
@@ -73,18 +84,27 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
-    // Send via Resend
-    const { data: emailData, error: emailError } = await resend.emails.send({
-      from: `${fromName} <${fromEmail}>`,
-      to: [to],
-      reply_to: fromEmail,
-      subject: subject,
-      html: emailHtml,
-      text: body,
+    // Send via Resend REST API
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `${fromName || 'The Brick Dev Studios'} <${fromEmail || 'developer@thebrickdev.com'}>`,
+        reply_to: fromEmail || 'hello@thebrickdev.com',
+        to: [to],
+        subject,
+        html: emailHtml,
+        text: body,
+      }),
     });
 
-    if (emailError) {
-      console.error('Resend error:', emailError);
+    const emailData = await resendResponse.json();
+
+    if (!resendResponse.ok) {
+      console.error('Resend error:', emailData);
       
       // Log failed attempt
       await supabase.from('email_send_log').insert({
@@ -95,10 +115,10 @@ export default async function handler(req, res) {
         subject,
         body,
         status: 'failed',
-        error_message: emailError.message,
+        error_message: emailData.message || 'Failed to send',
       });
 
-      return res.status(500).json({ error: emailError.message });
+      return res.status(500).json({ error: emailData.message || 'Failed to send email' });
     }
 
     // Log successful send
@@ -146,7 +166,6 @@ export default async function handler(req, res) {
 
     // Auto-advance stage and set follow-up based on email type
     if (templateType === 'initial_outreach' && prospect?.stage === 'identified') {
-      // Advance to contacted, follow-up in 3 days
       await supabase
         .from('prospects')
         .update({ 
@@ -159,11 +178,8 @@ export default async function handler(req, res) {
         prospect_id: prospectId,
         activity_type: 'stage_change',
         description: 'Stage: Identified → Contacted',
-        from_stage: 'identified',
-        to_stage: 'contacted',
       });
     } else if (templateType === 'follow_up_1') {
-      // Next follow-up in 4 days
       await supabase
         .from('prospects')
         .update({ 
@@ -171,7 +187,6 @@ export default async function handler(req, res) {
         })
         .eq('id', prospectId);
     } else if (templateType === 'follow_up_2') {
-      // Next follow-up in 7 days
       await supabase
         .from('prospects')
         .update({ 
@@ -179,7 +194,6 @@ export default async function handler(req, res) {
         })
         .eq('id', prospectId);
     } else if (templateType === 'follow_up_3') {
-      // Clear follow-up after breakup email
       await supabase
         .from('prospects')
         .update({ next_follow_up: null })

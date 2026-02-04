@@ -140,7 +140,7 @@ ${websiteDisplay}
 /**
  * Hook: Send invoice email via Vercel API
  */
-export function useSendInvoice() {
+export function useSendInvoice() { 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState(null);
 
