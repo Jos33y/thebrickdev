@@ -16,7 +16,7 @@ dist-ssr
 .env.*.local
 .env.example
 README.md
-structure_brickdev_02.txt
+structure_brick_dev.txt
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
