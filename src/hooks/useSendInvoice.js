@@ -1,28 +1,21 @@
 /**
  * useSendInvoice - Hook for sending invoices via Vercel Serverless Function
  * 
- * Now integrates with Settings for company info - no more hardcoded values!
- * 
- * Setup:
- * 1. Put api/send-invoice.js in your project root
- * 2. Add RESEND_API_KEY to Vercel environment variables
- * 3. Done!
+ * Supports PDF attachment via:
+ * - pdfBase64: base64 encoded PDF (from client-side generation)
+ * - pdfUrl: URL to hosted PDF
  */
 
 import { useState } from 'react';
 import { formatCurrency, formatDate } from '../lib/formatters';
 import { supabase } from '../lib/supabase';
 
-// Default fallbacks if settings not loaded
 const DEFAULT_COMPANY = {
   company_name: 'My Business',
   company_email: '',
   company_website: '',
 };
 
-/**
- * Fetch settings for email generation
- */
 const fetchSettings = async () => {
   const { data, error } = await supabase
     .from('settings')
@@ -33,27 +26,19 @@ const fetchSettings = async () => {
     console.warn('Could not fetch settings for email, using defaults');
     return DEFAULT_COMPANY;
   }
-
   return data;
 };
 
-/**
- * Generate email HTML
- */
 const generateEmailHTML = ({ 
-  invoiceNumber, 
-  recipientName, 
-  amount, 
-  currency, 
-  dueDate, 
-  customMessage,
-  companyName,
-  companyWebsite 
+  invoiceNumber, recipientName, amount, currency, dueDate, 
+  customMessage, companyName, companyWebsite, hasPdfAttachment
 }) => {
   const message = customMessage || 
     `Please find attached invoice ${invoiceNumber} for ${formatCurrency(amount, currency)}, due on ${formatDate(dueDate)}.`;
-
   const websiteDisplay = companyWebsite?.replace(/^https?:\/\//, '') || '';
+  const attachmentNote = hasPdfAttachment 
+    ? '📎 The full invoice PDF is attached to this email.'
+    : '📄 Please find your invoice details above.';
 
   return `
 <!DOCTYPE html>
@@ -68,13 +53,10 @@ const generateEmailHTML = ({
       <div style="font-size: 24px; font-weight: bold; color: #ea580c;">${companyName}</div>
       <div style="font-family: monospace; font-size: 18px; color: #ea580c; margin-top: 10px;">${invoiceNumber}</div>
     </div>
-    
     <p>Hi${recipientName ? ` ${recipientName}` : ''},</p>
-    
     <div style="background-color: #fafafa; padding: 20px; border-radius: 6px; margin: 20px 0;">
       <p style="margin: 0;">${message}</p>
     </div>
-    
     <table style="width: 100%; margin: 30px 0; border-collapse: collapse;">
       <tr style="border-bottom: 1px solid #e5e5e5;">
         <td style="padding: 10px 0; color: #666;">Invoice Number</td>
@@ -89,36 +71,23 @@ const generateEmailHTML = ({
         <td style="padding: 15px 0; text-align: right; font-weight: 600; font-size: 18px; color: #ea580c;">${formatCurrency(amount, currency)}</td>
       </tr>
     </table>
-    
     <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 6px; font-size: 14px; color: #0369a1;">
-      📎 The full invoice PDF is attached to this email.
+      ${attachmentNote}
     </div>
-    
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e5e5; text-align: center; color: #888; font-size: 14px;">
       <p style="margin: 0;">${companyName}</p>
       ${websiteDisplay ? `<p style="margin: 5px 0;">${websiteDisplay}</p>` : ''}
     </div>
   </div>
 </body>
-</html>
-  `;
+</html>`;
 };
 
-/**
- * Generate plain text version
- */
 const generateEmailText = ({ 
-  invoiceNumber, 
-  recipientName, 
-  amount, 
-  currency, 
-  dueDate, 
-  customMessage,
-  companyName,
-  companyWebsite 
+  invoiceNumber, recipientName, amount, currency, dueDate, 
+  customMessage, companyName, companyWebsite 
 }) => {
   const websiteDisplay = companyWebsite?.replace(/^https?:\/\//, '') || '';
-  
   return `
 Invoice ${invoiceNumber} from ${companyName}
 
@@ -138,21 +107,21 @@ ${websiteDisplay}
 };
 
 /**
- * Hook: Send invoice email via Vercel API
+ * Hook: Send invoice email with optional PDF attachment
  */
 export function useSendInvoice() { 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendInvoice = async ({ invoice, recipientEmail, message }) => {
+  const sendInvoice = async ({ invoice, recipientEmail, message, pdfBase64, pdfUrl }) => {
     setIsPending(true);
     setError(null);
 
     try {
-      // Fetch company settings
       const settings = await fetchSettings();
       const companyName = settings.company_name || DEFAULT_COMPANY.company_name;
       const companyWebsite = settings.company_website || '';
+      const hasPdfAttachment = !!(pdfBase64 || pdfUrl);
 
       const html = generateEmailHTML({
         invoiceNumber: invoice.invoice_number,
@@ -163,6 +132,7 @@ export function useSendInvoice() {
         customMessage: message,
         companyName,
         companyWebsite,
+        hasPdfAttachment,
       });
 
       const text = generateEmailText({
@@ -176,25 +146,28 @@ export function useSendInvoice() {
         companyWebsite,
       });
 
-      // Call our Vercel serverless function
+      const payload = {
+        to: recipientEmail,
+        subject: `Invoice ${invoice.invoice_number} from ${companyName}`,
+        html,
+        text,
+        invoiceNumber: invoice.invoice_number,
+      };
+
+      if (pdfBase64) {
+        payload.pdfBase64 = pdfBase64;
+      } else if (pdfUrl) {
+        payload.pdfUrl = pdfUrl;
+      }
+
       const response = await fetch('/api/send-invoice', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to: recipientEmail,
-          subject: `Invoice ${invoice.invoice_number} from ${companyName}`,
-          html,
-          text,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send email');
-      }
+      if (!response.ok) throw new Error(data.error || 'Failed to send email');
 
       setIsPending(false);
       return { success: true, data: data.data };
@@ -206,12 +179,7 @@ export function useSendInvoice() {
     }
   };
 
-  return {
-    sendInvoice,
-    isPending,
-    error,
-    reset: () => setError(null),
-  };
+  return { sendInvoice, isPending, error, reset: () => setError(null) };
 }
 
 export default useSendInvoice;

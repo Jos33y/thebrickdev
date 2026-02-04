@@ -1,7 +1,7 @@
 /**
- * SendInvoiceModal - Modal for sending invoice via email
+ * SendInvoiceModal - Modal for sending invoice via email WITH PDF ATTACHMENT
  * 
- * Now uses Settings for company name instead of hardcoded COMPANY_INFO
+ * Generates PDF using @react-pdf/renderer and attaches to email
  */
 
 import { useState, useEffect } from 'react';
@@ -10,6 +10,23 @@ import { SendIcon } from '../../common/Icons';
 import { useSendInvoice } from '../../../hooks/useSendInvoice';
 import { useSettings } from '../../../hooks/useSettings';
 import { formatCurrency, formatDate } from '../../../lib/formatters';
+import { generateInvoicePDFBlob } from '../../../lib/pdf';
+
+/**
+ * Convert Blob to Base64 string
+ */
+const blobToBase64 = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // Remove the data:application/pdf;base64, prefix
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 const SendInvoiceModal = ({
   isOpen,
@@ -27,6 +44,7 @@ const SendInvoiceModal = ({
   const [recipientEmail, setRecipientEmail] = useState('');
   const [message, setMessage] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   // Pre-fill email from client
   useEffect(() => {
@@ -51,7 +69,7 @@ const SendInvoiceModal = ({
     return emailRegex.test(email);
   };
 
-  // Handle send
+  // Handle send with PDF attachment
   const handleSend = async () => {
     // Validate
     if (!recipientEmail.trim()) {
@@ -65,16 +83,32 @@ const SendInvoiceModal = ({
     }
 
     setValidationError('');
+    setIsGeneratingPDF(true);
 
-    const result = await sendInvoice({
-      invoice,
-      recipientEmail: recipientEmail.trim(),
-      message: message.trim(),
-    });
+    try {
+      // Generate PDF blob
+      const pdfBlob = await generateInvoicePDFBlob(invoice);
+      
+      // Convert to base64
+      const pdfBase64 = await blobToBase64(pdfBlob);
 
-    if (result.success) {
-      onSuccess?.();
-      onClose();
+      // Send email with PDF attachment
+      const result = await sendInvoice({
+        invoice,
+        recipientEmail: recipientEmail.trim(),
+        message: message.trim(),
+        pdfBase64, // Attach the PDF
+      });
+
+      if (result.success) {
+        onSuccess?.();
+        onClose();
+      }
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+      setValidationError('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -84,10 +118,13 @@ const SendInvoiceModal = ({
     if (validationError) setValidationError('');
   };
 
-  // Default message preview - uses company name from settings
+  // Default message preview
   const defaultSubject = `Invoice ${invoice?.invoice_number} from ${companyName}`;
   const defaultMessage = message.trim() || 
     `Please find attached invoice ${invoice?.invoice_number} for ${formatCurrency(invoice?.total, invoice?.currency)}, due on ${formatDate(invoice?.due_date)}.`;
+
+  const isLoading = isPending || isGeneratingPDF;
+  const loadingText = isGeneratingPDF ? 'Generating PDF...' : 'Sending...';
 
   return (
     <Modal
@@ -100,7 +137,7 @@ const SendInvoiceModal = ({
           <Button
             variant="secondary"
             onClick={onClose}
-            disabled={isPending}
+            disabled={isLoading}
           >
             Cancel
           </Button>
@@ -108,9 +145,9 @@ const SendInvoiceModal = ({
             variant="primary"
             icon={SendIcon}
             onClick={handleSend}
-            loading={isPending}
+            loading={isLoading}
           >
-            Send Invoice
+            {isLoading ? loadingText : 'Send Invoice'}
           </Button>
         </>
       }
