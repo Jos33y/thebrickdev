@@ -4,7 +4,7 @@
  * Sections:
  * - Company Information (for invoice headers)
  * - Invoice Defaults (currency, terms, prefix)
- * - Financial Goals (income target, savings)
+ * - Financial Goals (income target, savings goal, CURRENT SAVINGS)
  * - Account (change password)
  */
 
@@ -25,11 +25,10 @@ import {
   CheckCircleIcon,
   AlertCircleIcon,
 } from '../../components/common/Icons';
-import { useSettings, useUpdateSettings, useChangePassword } from '../../hooks';
+import { useSettings, useUpdateSettings, useChangePassword } from '../../hooks/useSettings';
+import { formatCurrency } from '../../lib/formatters';
 
 // Note: BuildingIcon and TargetIcon need to be added to Icons.jsx
-// See additional_icons.jsx for the SVG code
-// For now, using SettingsIcon as placeholder
 const BuildingIcon = SettingsIcon;
 const TargetIcon = SettingsIcon;
 
@@ -88,6 +87,7 @@ const Settings = () => {
       monthly_income_currency: settings.monthly_income_currency || 'USD',
       savings_goal: settings.savings_goal || 20000,
       savings_goal_currency: settings.savings_goal_currency || 'USD',
+      current_savings: settings.current_savings || 0, // NEW
       goal_target_date: settings.goal_target_date || '',
     });
   }
@@ -145,6 +145,11 @@ const Settings = () => {
       setMessages({ ...messages, password: { type: 'error', text: err.message } });
     }
   };
+
+  // Calculate savings progress
+  const savingsProgress = goalsForm?.savings_goal > 0 
+    ? Math.min(100, ((goalsForm?.current_savings || 0) / goalsForm.savings_goal) * 100)
+    : 0;
 
   if (isLoading || !companyForm) {
     return (
@@ -335,7 +340,7 @@ const Settings = () => {
                 value={goalsForm.savings_goal}
                 onChange={(e) => setGoalsForm({ ...goalsForm, savings_goal: parseFloat(e.target.value) || 0 })}
                 placeholder="20000"
-                hint="Optional - for tracking business reserves"
+                hint="Your target savings amount"
               />
               <Select
                 label="Currency"
@@ -343,6 +348,36 @@ const Settings = () => {
                 onChange={(e) => setGoalsForm({ ...goalsForm, savings_goal_currency: e.target.value })}
                 options={CURRENCY_OPTIONS}
               />
+            </div>
+
+            {/* Current Savings - NEW */}
+            <div className="settings__savings-section">
+              <Input
+                label="Current Savings Balance"
+                type="number"
+                value={goalsForm.current_savings}
+                onChange={(e) => setGoalsForm({ ...goalsForm, current_savings: parseFloat(e.target.value) || 0 })}
+                placeholder="0"
+                hint="Update this when you save or withdraw money"
+              />
+              
+              {goalsForm.savings_goal > 0 && (
+                <div className="settings__savings-progress">
+                  <div className="settings__savings-progress-header">
+                    <span>Progress</span>
+                    <span>
+                      {formatCurrency(goalsForm.current_savings || 0, goalsForm.savings_goal_currency)} / {formatCurrency(goalsForm.savings_goal, goalsForm.savings_goal_currency)}
+                    </span>
+                  </div>
+                  <div className="settings__savings-progress-bar">
+                    <div 
+                      className="settings__savings-progress-fill"
+                      style={{ width: `${savingsProgress}%` }}
+                    />
+                  </div>
+                  <span className="settings__savings-progress-percent">{savingsProgress.toFixed(0)}%</span>
+                </div>
+              )}
             </div>
 
             <Input
@@ -385,7 +420,7 @@ const Settings = () => {
               type="password"
               value={passwordForm.newPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-              placeholder="Enter new password"
+              placeholder="••••••••"
             />
 
             <Input
@@ -393,7 +428,7 @@ const Settings = () => {
               type="password"
               value={passwordForm.confirmPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-              placeholder="Confirm new password"
+              placeholder="••••••••"
             />
 
             {messages.password && (

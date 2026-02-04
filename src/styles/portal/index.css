@@ -23,3 +23,6 @@
 
 /* Dashboard */
 @import './dashboard.css';
+@import './prospects.css';
+@import './kanban.css';
+@import './analytics.css';

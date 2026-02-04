@@ -4,7 +4,7 @@
  * Utility functions for formatting dates, currencies, and other display values.
  */
 
-import { format, formatDistanceToNow, isValid, parseISO } from 'date-fns';
+import { format, formatDistanceToNow, isValid, parseISO, isToday, isYesterday, isTomorrow, differenceInDays } from 'date-fns';
 import { CURRENCY_SYMBOLS, CURRENCIES } from './constants';
 
 /**
@@ -45,6 +45,42 @@ export function formatRelativeTime(date) {
   if (!isValid(dateObj)) return '';
   
   return formatDistanceToNow(dateObj, { addSuffix: true });
+}
+
+/**
+ * Format date as human-friendly relative date
+ * Shows "Today", "Yesterday", "Tomorrow", "X days ago", "in X days", or full date
+ * @param {string|Date} date - Date to format
+ * @returns {string} Human-friendly date string
+ */
+export function formatRelativeDate(date) {
+  if (!date) return '';
+  
+  const dateObj = typeof date === 'string' ? parseISO(date) : date;
+  
+  if (!isValid(dateObj)) return '';
+  
+  // Check for today, yesterday, tomorrow
+  if (isToday(dateObj)) return 'Today';
+  if (isYesterday(dateObj)) return 'Yesterday';
+  if (isTomorrow(dateObj)) return 'Tomorrow';
+  
+  const now = new Date();
+  const diffDays = differenceInDays(dateObj, now);
+  
+  // Future dates within a week
+  if (diffDays > 0 && diffDays <= 7) {
+    return `in ${diffDays} day${diffDays === 1 ? '' : 's'}`;
+  }
+  
+  // Past dates within a week
+  if (diffDays < 0 && diffDays >= -7) {
+    const absDiff = Math.abs(diffDays);
+    return `${absDiff} day${absDiff === 1 ? '' : 's'} ago`;
+  }
+  
+  // Older/further dates - use standard format
+  return format(dateObj, 'MMM d, yyyy');
 }
 
 /**

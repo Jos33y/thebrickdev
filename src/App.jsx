@@ -25,6 +25,11 @@ import Payments from './pages/portal/Payments';
 import PaymentCreate from './pages/portal/PaymentCreate';
 import PaymentDetail from './pages/portal/PaymentDetail';
 import PaymentEdit from './pages/portal/PaymentEdit';
+import Prospects from './pages/portal/Prospects';
+import ProspectCreate from './pages/portal/ProspectCreate';
+import ProspectDetail from './pages/portal/ProspectDetail';
+import ProspectEdit from './pages/portal/ProspectEdit';
+import ProspectsKanban from './pages/portal/ProspectsKanban';
 import Settings from './pages/portal/Settings';
 
 // Scroll to top on route change
@@ -62,6 +67,13 @@ function App() {
             {/* Dashboard */}
             <Route path="dashboard" element={<Dashboard />} />
             
+            {/* Prospects (CRM) */}
+            <Route path="prospects" element={<Prospects />} />
+            <Route path="prospects/new" element={<ProspectCreate />} />
+            <Route path="prospects/pipeline" element={<ProspectsKanban />} />
+            <Route path="prospects/:id" element={<ProspectDetail />} />
+            <Route path="prospects/:id/edit" element={<ProspectEdit />} />
+            
             {/* Clients */}
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetail />} />
@@ -72,7 +84,7 @@ function App() {
             <Route path="invoices/:id" element={<InvoiceDetail />} />
             <Route path="invoices/:id/edit" element={<InvoiceEdit />} />
             
-            {/* Payments - FIXED: Added missing routes */}
+            {/* Payments */}
             <Route path="payments" element={<Payments />} />
             <Route path="payments/new" element={<PaymentCreate />} />
             <Route path="payments/:id" element={<PaymentDetail />} />

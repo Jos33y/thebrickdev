@@ -1,13 +1,15 @@
 /**
- * PaymentForm - Simple form for recording payments
+ * PaymentForm - Form for recording payments
  * 
- * Follows the working pattern from InvoiceForm/ClientForm.
+ * NEW: Account Name field and Receipt Upload for proof of payment
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Card, Button, Input, Select, TextArea } from '../common';
+import { UploadIcon, TrashIcon, FileIcon, ImageIcon } from '../../common/Icons';
 import { useInvoices } from '../../../hooks/useInvoices';
 import { formatCurrency } from '../../../lib/formatters';
+import { supabase } from '../../../lib/supabase';
 
 // Payment types matching database
 const PAYMENT_TYPES = [
@@ -64,6 +66,7 @@ const PaymentForm = ({
 }) => {
   const isEditing = !!initialData;
   const { data: invoices = [], isLoading: invoicesLoading } = useInvoices();
+  const fileInputRef = useRef(null);
 
   // Main form state
   const [formData, setFormData] = useState({
@@ -79,11 +82,13 @@ const PaymentForm = ({
 
   // Bank details
   const [bankName, setBankName] = useState('');
+  const [accountName, setAccountName] = useState(''); // NEW
   const [accountRef, setAccountRef] = useState('');
   const [transferRef, setTransferRef] = useState('');
 
   // Platform details
   const [platform, setPlatform] = useState('grey');
+  const [platformAccountName, setPlatformAccountName] = useState(''); // NEW
   const [platformTxRef, setPlatformTxRef] = useState('');
   const [platformUsdAmount, setPlatformUsdAmount] = useState('');
   const [platformRate, setPlatformRate] = useState('');
@@ -98,6 +103,13 @@ const PaymentForm = ({
   const [cryptoAmount, setCryptoAmount] = useState('');
   const [walletAddress, setWalletAddress] = useState('');
   const [txHash, setTxHash] = useState('');
+
+  // Receipt upload - NEW
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState(null);
+  const [existingReceiptUrl, setExistingReceiptUrl] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [error, setError] = useState('');
 
@@ -119,10 +131,13 @@ const PaymentForm = ({
         const d = initialData.details;
         if (initialData.payment_type === 'bank') {
           setBankName(d.bank_name || '');
+          setAccountName(d.account_name || ''); // NEW
           setAccountRef(d.account_reference || '');
           setTransferRef(d.transfer_reference || '');
+          setExistingReceiptUrl(d.receipt_url || '');
         } else if (initialData.payment_type === 'platform') {
           setPlatform(d.platform || 'grey');
+          setPlatformAccountName(d.account_name || ''); // NEW
           setPlatformTxRef(d.transaction_reference || '');
           setPlatformUsdAmount(d.amount_received_usd?.toString() || '');
           setPlatformRate(d.conversion_rate?.toString() || '');
@@ -130,6 +145,7 @@ const PaymentForm = ({
           setDepositBank(d.deposit_bank || '');
           setDepositDate(d.deposit_date || '');
           setDepositRef(d.deposit_reference || '');
+          setExistingReceiptUrl(d.receipt_url || '');
         } else if (initialData.payment_type === 'crypto') {
           setCryptoType(d.crypto_type || 'USDT');
           setCryptoNetwork(d.network || 'TRC20');
@@ -139,6 +155,7 @@ const PaymentForm = ({
           setDepositBank(d.deposit_bank || '');
           setDepositDate(d.deposit_date || '');
           setDepositRef(d.deposit_reference || '');
+          setExistingReceiptUrl(d.receipt_url || '');
         }
       }
     }
@@ -174,6 +191,86 @@ const PaymentForm = ({
     setFormData(prev => ({ ...prev, [field]: e.target.value }));
   };
 
+  // Handle file selection - NEW
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Only JPG, PNG, or PDF files are allowed');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be less than 5MB');
+      return;
+    }
+
+    setReceiptFile(file);
+    setError('');
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => setReceiptPreview(e.target.result);
+      reader.readAsDataURL(file);
+    } else {
+      setReceiptPreview(null);
+    }
+  };
+
+  // Remove selected file
+  const handleRemoveFile = () => {
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Remove existing receipt
+  const handleRemoveExistingReceipt = () => {
+    setExistingReceiptUrl('');
+  };
+
+  // Upload receipt to Supabase Storage - NEW
+  const uploadReceipt = async () => {
+    if (!receiptFile) return existingReceiptUrl || null;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Generate unique filename
+      const fileExt = receiptFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `payments/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error: uploadError } = await supabase.storage
+        .from('receipts')
+        .upload(filePath, receiptFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      setUploadProgress(100);
+      // Return the file path (not public URL) - we'll generate signed URLs when viewing
+      return filePath;
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError('Failed to upload receipt: ' + err.message);
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Validate
   const validate = () => {
     if (!formData.invoice_id) {
@@ -204,10 +301,13 @@ const PaymentForm = ({
   };
 
   // Handle submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validate()) return;
+
+    // Upload receipt if selected
+    const receiptUrl = await uploadReceipt();
 
     // Build details based on type
     let details = null;
@@ -215,12 +315,15 @@ const PaymentForm = ({
     if (formData.payment_type === 'bank') {
       details = {
         bank_name: bankName.trim(),
+        account_name: accountName.trim() || null, // NEW
         account_reference: accountRef.trim() || null,
         transfer_reference: transferRef.trim() || null,
+        receipt_url: receiptUrl, // NEW
       };
     } else if (formData.payment_type === 'platform') {
       details = {
         platform: platform,
+        account_name: platformAccountName.trim() || null, // NEW
         transaction_reference: platformTxRef.trim() || null,
         amount_received_usd: platformUsdAmount ? parseFloat(platformUsdAmount) : null,
         conversion_rate: platformRate ? parseFloat(platformRate) : null,
@@ -228,6 +331,7 @@ const PaymentForm = ({
         deposit_bank: depositBank.trim() || null,
         deposit_date: depositDate || null,
         deposit_reference: depositRef.trim() || null,
+        receipt_url: receiptUrl, // NEW
       };
     } else if (formData.payment_type === 'crypto') {
       details = {
@@ -239,6 +343,7 @@ const PaymentForm = ({
         deposit_bank: depositBank.trim() || null,
         deposit_date: depositDate || null,
         deposit_reference: depositRef.trim() || null,
+        receipt_url: receiptUrl, // NEW
       };
     }
 
@@ -249,7 +354,7 @@ const PaymentForm = ({
       currency_received: formData.currency_received,
       received_date: formData.received_date,
       status: formData.status,
-      cleared_date: formData.cleared_date || null,
+      cleared_date: formData.status === 'cleared' ? formData.cleared_date || formData.received_date : null,
       notes: formData.notes.trim() || null,
       details,
     };
@@ -335,8 +440,14 @@ const PaymentForm = ({
                 required
               />
               <Input
+                label="Account Holder Name"
+                placeholder="Name on receiving account"
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
+              />
+              <Input
                 label="Account Reference"
-                placeholder="Your account reference"
+                placeholder="Your account number/reference"
                 value={accountRef}
                 onChange={(e) => setAccountRef(e.target.value)}
               />
@@ -359,6 +470,12 @@ const PaymentForm = ({
                 options={PLATFORMS}
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
+              />
+              <Input
+                label="Account Holder Name"
+                placeholder="Name on platform account"
+                value={platformAccountName}
+                onChange={(e) => setPlatformAccountName(e.target.value)}
               />
               <Input
                 label="Transaction Reference"
@@ -471,6 +588,85 @@ const PaymentForm = ({
         )}
       </Card>
 
+      {/* Receipt Upload - NEW */}
+      <Card title="Receipt / Proof of Payment" padding="md">
+        <p className="form-hint" style={{ marginBottom: '1rem' }}>
+          Upload a screenshot or PDF of the payment confirmation (optional)
+        </p>
+
+        {/* Existing receipt */}
+        {existingReceiptUrl && !receiptFile && (
+          <div className="receipt-preview">
+            <div className="receipt-preview__existing">
+              <FileIcon size={20} />
+              <a href={existingReceiptUrl} target="_blank" rel="noopener noreferrer">
+                View existing receipt
+              </a>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleRemoveExistingReceipt}
+              >
+                <TrashIcon size={16} />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* File input */}
+        {!existingReceiptUrl && !receiptFile && (
+          <div className="receipt-upload">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,application/pdf"
+              onChange={handleFileSelect}
+              className="receipt-upload__input"
+              id="receipt-file"
+            />
+            <label htmlFor="receipt-file" className="receipt-upload__label">
+              <UploadIcon size={24} />
+              <span>Click to upload or drag and drop</span>
+              <span className="receipt-upload__hint">JPG, PNG or PDF (max 5MB)</span>
+            </label>
+          </div>
+        )}
+
+        {/* Selected file preview */}
+        {receiptFile && (
+          <div className="receipt-preview">
+            {receiptPreview ? (
+              <img src={receiptPreview} alt="Receipt preview" className="receipt-preview__image" />
+            ) : (
+              <div className="receipt-preview__file">
+                <FileIcon size={32} />
+                <span>{receiptFile.name}</span>
+              </div>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleRemoveFile}
+              className="receipt-preview__remove"
+            >
+              <TrashIcon size={16} /> Remove
+            </Button>
+          </div>
+        )}
+
+        {/* Upload progress */}
+        {isUploading && (
+          <div className="receipt-upload__progress">
+            <div 
+              className="receipt-upload__progress-bar" 
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
+      </Card>
+
       {/* Notes */}
       <Card title="Notes" padding="md">
         <TextArea
@@ -484,11 +680,11 @@ const PaymentForm = ({
       {/* Actions */}
       <div className="form-actions">
         {onCancel && (
-          <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting || isUploading}>
             Cancel
           </Button>
         )}
-        <Button type="submit" variant="primary" loading={isSubmitting}>
+        <Button type="submit" variant="primary" loading={isSubmitting || isUploading}>
           {isEditing ? 'Update Payment' : 'Record Payment'}
         </Button>
       </div>

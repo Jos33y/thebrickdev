@@ -183,9 +183,9 @@ const Invoices = () => {
     <div className="portal-page portal-invoices">
       <PageHeader
         title="Invoices"
-        subtitle={`${summary.totalOutstanding > 0 
-          ? `${formatCurrency(summary.totalOutstanding, 'USD')} outstanding` 
-          : 'No outstanding invoices'}`}
+        subtitle={summary.sent + summary.overdue > 0 
+          ? `${summary.sent + summary.overdue} outstanding` 
+          : 'No outstanding invoices'}
         actions={
           <Button
             variant="primary"

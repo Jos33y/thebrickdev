@@ -379,3 +379,149 @@
     order: -1;
   }
 }
+
+/* =============================================================================
+   RECEIPT UPLOAD STYLES - Add to payments.css
+   ============================================================================= */
+
+/* Receipt Upload Container */
+.receipt-upload {
+  position: relative;
+}
+
+.receipt-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.receipt-upload__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  border: 2px dashed var(--border-color, #333);
+  border-radius: 0.5rem;
+  background: var(--bg-tertiary, #1a1a1a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary, #888);
+}
+
+.receipt-upload__label:hover {
+  border-color: var(--primary, #ea580c);
+  background: rgba(234, 88, 12, 0.05);
+}
+
+.receipt-upload__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #666);
+}
+
+/* Receipt Preview */
+.receipt-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.receipt-preview__image {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #333);
+}
+
+.receipt-preview__file {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-tertiary, #1a1a1a);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #333);
+}
+
+.receipt-preview__existing {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-tertiary, #1a1a1a);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #333);
+}
+
+.receipt-preview__existing a {
+  color: var(--primary, #ea580c);
+  text-decoration: none;
+  flex: 1;
+}
+
+.receipt-preview__existing a:hover {
+  text-decoration: underline;
+}
+
+.receipt-preview__remove {
+  margin-top: 0.5rem;
+}
+
+/* Upload Progress */
+.receipt-upload__progress {
+  height: 4px;
+  background: var(--bg-tertiary, #1a1a1a);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.receipt-upload__progress-bar {
+  height: 100%;
+  background: var(--primary, #ea580c);
+  transition: width 0.3s ease;
+}
+
+/* Receipt Display (on detail page) */
+.receipt-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.receipt-display__image {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #333);
+}
+
+.receipt-display__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.receipt-display__file {
+  padding: 1rem;
+  background: var(--bg-tertiary, #1a1a1a);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #333);
+}
+
+.receipt-display__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary, #ea580c);
+  text-decoration: none;
+}
+
+.receipt-display__link:hover {
+  text-decoration: underline;
+}

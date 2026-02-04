@@ -1,8 +1,10 @@
 /**
  * PaymentDetail - Single payment view
+ * 
+ * NEW: Displays account name and receipt image/link
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   PageHeader,
@@ -13,9 +15,10 @@ import {
   EmptyState,
   LoadingState,
 } from '../../components/portal/common';
-import { EditIcon, TrashIcon, CheckCircleIcon, InvoiceIcon } from '../../components/common/Icons';
+import { EditIcon, TrashIcon, CheckCircleIcon, InvoiceIcon, ExternalLinkIcon, ImageIcon } from '../../components/common/Icons';
 import { usePayment, useUpdatePaymentStatus, useDeletePayment } from '../../hooks/usePayments';
 import { formatCurrency, formatDate } from '../../lib/formatters';
+import { supabase } from '../../lib/supabase';
 
 const PAYMENT_TYPE_LABELS = {
   bank: 'Bank Transfer',
@@ -35,10 +38,51 @@ const PaymentDetail = () => {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   const { data: payment, isLoading, error } = usePayment(id);
   const updateStatus = useUpdatePaymentStatus();
   const deletePayment = useDeletePayment();
+
+  // Generate signed URL for receipt (private bucket)
+  const [receiptSignedUrl, setReceiptSignedUrl] = useState(null);
+  
+  useEffect(() => {
+    const getSignedUrl = async () => {
+      const receiptPath = payment?.details?.receipt_url;
+      if (!receiptPath) {
+        setReceiptSignedUrl(null);
+        return;
+      }
+      
+      let filePath = receiptPath;
+      
+      // If it's a full Supabase URL, extract just the file path
+      // URL format: https://xxx.supabase.co/storage/v1/object/public/receipts/payments/filename.jpg
+      if (receiptPath.includes('supabase.co/storage')) {
+        const match = receiptPath.match(/\/receipts\/(.+)$/);
+        if (match) {
+          filePath = match[1]; // e.g., "payments/filename.jpg"
+        }
+      }
+      
+      // Generate signed URL for private bucket (valid for 1 hour)
+      const { data, error } = await supabase.storage
+        .from('receipts')
+        .createSignedUrl(filePath, 3600);
+      
+      if (error) {
+        console.error('Error getting signed URL:', error);
+        return;
+      }
+      
+      setReceiptSignedUrl(data.signedUrl);
+    };
+    
+    if (payment?.details?.receipt_url) {
+      getSignedUrl();
+    }
+  }, [payment?.details?.receipt_url]);
 
   const handleMarkCleared = async () => {
     try {
@@ -60,6 +104,12 @@ const PaymentDetail = () => {
     } catch (err) {
       console.error('Failed to delete payment:', err);
     }
+  };
+
+  // Check if receipt is an image
+  const isReceiptImage = (url) => {
+    if (!url) return false;
+    return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   };
 
   if (isLoading) {
@@ -84,6 +134,8 @@ const PaymentDetail = () => {
       </div>
     );
   }
+
+  const receiptUrl = receiptSignedUrl;
 
   return (
     <div className="portal-page portal-payment-detail">
@@ -151,6 +203,12 @@ const PaymentDetail = () => {
                     <span className="detail-value">{payment.details.bank_name}</span>
                   </div>
                 )}
+                {payment.details.account_name && (
+                  <div className="detail-row">
+                    <span className="detail-label">Account Holder</span>
+                    <span className="detail-value">{payment.details.account_name}</span>
+                  </div>
+                )}
                 {payment.details.account_reference && (
                   <div className="detail-row">
                     <span className="detail-label">Account Reference</span>
@@ -175,6 +233,12 @@ const PaymentDetail = () => {
                   <div className="detail-row">
                     <span className="detail-label">Platform</span>
                     <span className="detail-value">{PLATFORM_LABELS[payment.details.platform] || payment.details.platform}</span>
+                  </div>
+                )}
+                {payment.details.account_name && (
+                  <div className="detail-row">
+                    <span className="detail-label">Account Holder</span>
+                    <span className="detail-value">{payment.details.account_name}</span>
                   </div>
                 )}
                 {payment.details.transaction_reference && (
@@ -261,6 +325,45 @@ const PaymentDetail = () => {
             </Card>
           )}
 
+          {/* Receipt - NEW */}
+          {receiptUrl && (
+            <Card title="Receipt / Proof of Payment" padding="md">
+              {isReceiptImage(receiptUrl) ? (
+                <div className="receipt-display">
+                  <img 
+                    src={receiptUrl} 
+                    alt="Payment receipt" 
+                    className="receipt-display__image"
+                    onClick={() => setShowReceiptModal(true)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <div className="receipt-display__actions">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon={ImageIcon}
+                      onClick={() => setShowReceiptModal(true)}
+                    >
+                      View Full Size
+                    </Button>
+                    <a href={receiptUrl} target="_blank" rel="noopener noreferrer">
+                      <Button variant="ghost" size="sm" icon={ExternalLinkIcon}>
+                        Open in New Tab
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="receipt-display__file">
+                  <a href={receiptUrl} target="_blank" rel="noopener noreferrer" className="receipt-display__link">
+                    <ExternalLinkIcon size={20} />
+                    View Receipt
+                  </a>
+                </div>
+              )}
+            </Card>
+          )}
+
           {/* Notes */}
           {payment.notes && (
             <Card title="Notes" padding="md">
@@ -320,6 +423,22 @@ const PaymentDetail = () => {
         }
       >
         <p>This will mark the payment as cleared.</p>
+      </Modal>
+
+      {/* Receipt Modal - NEW */}
+      <Modal
+        isOpen={showReceiptModal}
+        onClose={() => setShowReceiptModal(false)}
+        title="Receipt"
+        size="lg"
+      >
+        {receiptUrl && isReceiptImage(receiptUrl) && (
+          <img 
+            src={receiptUrl} 
+            alt="Payment receipt" 
+            style={{ width: '100%', height: 'auto' }}
+          />
+        )}
       </Modal>
     </div>
   );

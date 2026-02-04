@@ -146,7 +146,7 @@ const Payments = () => {
     <div className="portal-page portal-payments">
       <PageHeader
         title="Payments"
-        subtitle={`${formatCurrency(summary.totalCleared, 'USD')} cleared`}
+        subtitle={`${summary.clearedCount} cleared`}
         actions={
           <Button
             variant="primary"

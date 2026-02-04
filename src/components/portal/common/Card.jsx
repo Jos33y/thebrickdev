@@ -2,13 +2,14 @@
  * Card - Content container component
  * 
  * Variants: default, bordered
- * Can have header with title and actions
+ * Can have header with title, subtitle, icon, and actions
  */
 
 const Card = ({
   children,
   title,
   subtitle,
+  icon: Icon,  // Renamed to Icon so we can render it as component
   actions,
   variant = 'default',
   padding = 'md',
@@ -21,15 +22,22 @@ const Card = ({
   
   const classes = [baseClass, variantClass, paddingClass, className].filter(Boolean).join(' ');
   
-  const hasHeader = title || subtitle || actions;
+  const hasHeader = title || subtitle || actions || Icon;
   
   return (
     <div className={classes} {...props}>
       {hasHeader && (
         <div className="card__header">
-          <div className="card__header-text">
-            {title && <h3 className="card__title">{title}</h3>}
-            {subtitle && <p className="card__subtitle">{subtitle}</p>}
+          <div className="card__header-left">
+            {Icon && (
+              <div className="card__icon">
+                <Icon size={18} />
+              </div>
+            )}
+            <div className="card__header-text">
+              {title && <h3 className="card__title">{title}</h3>}
+              {subtitle && <p className="card__subtitle">{subtitle}</p>}
+            </div>
           </div>
           {actions && <div className="card__actions">{actions}</div>}
         </div>

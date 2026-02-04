@@ -3,11 +3,12 @@
  * 
  * Tracks:
  * - Monthly income tracking
- * - Savings/goal progress
+ * - Savings/goal progress (uses current_savings from Settings)
  * - Income by source (bank, platform, crypto)
  * - Currency breakdown
  * - Year-to-date totals
  * - Average monthly income
+ * - Prospect pipeline stats (Phase 2)
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -19,6 +20,7 @@ import {
   startOfYear,
   format, 
   isAfter, 
+  isBefore,
   parseISO
 } from 'date-fns';
 
@@ -33,6 +35,7 @@ const CONVERSION_RATES = {
 
 /**
  * Convert amount between currencies
+ * EXPORTED for use in Dashboard component currency toggle
  */
 export const convertCurrency = (amount, fromCurrency, toCurrency) => {
   if (!amount || fromCurrency === toCurrency) return amount;
@@ -49,8 +52,8 @@ const fetchDashboardData = async () => {
   const currentMonthEnd = endOfMonth(now);
   const yearStart = startOfYear(now);
   
-  // Fetch all data in parallel
-  const [paymentsResult, invoicesResult, clientsResult, settingsResult] = await Promise.all([
+  // Fetch all data in parallel (including prospects)
+  const [paymentsResult, invoicesResult, clientsResult, settingsResult, prospectsResult] = await Promise.all([
     supabase
       .from('payments')
       .select('id, amount_received, currency_received, received_date, status, payment_type')
@@ -64,17 +67,23 @@ const fetchDashboardData = async () => {
       .select('id, status'),
     supabase
       .from('settings')
-      .select('monthly_income_target, monthly_income_currency, savings_goal, savings_goal_currency, goal_target_date')
-      .single()
+      .select('monthly_income_target, monthly_income_currency, savings_goal, savings_goal_currency, current_savings, goal_target_date')
+      .single(),
+    // Fetch prospects with activity count
+    supabase
+      .from('prospects')
+      .select('id, name, company, stage, estimated_value, currency, source, next_follow_up, created_at')
   ]);
 
   if (paymentsResult.error) console.error('Payments error:', paymentsResult.error);
   if (invoicesResult.error) console.error('Invoices error:', invoicesResult.error);
   if (clientsResult.error) console.error('Clients error:', clientsResult.error);
+  if (prospectsResult.error) console.error('Prospects error:', prospectsResult.error);
 
   const payments = paymentsResult.data || [];
   const invoices = invoicesResult.data || [];
   const clients = clientsResult.data || [];
+  const prospects = prospectsResult.data || [];
   
   // Settings with fallback defaults
   const settings = settingsResult.data || {
@@ -82,6 +91,7 @@ const fetchDashboardData = async () => {
     monthly_income_currency: 'USD',
     savings_goal: 20000,
     savings_goal_currency: 'USD',
+    current_savings: 0,
     goal_target_date: null
   };
 
@@ -153,6 +163,45 @@ const fetchDashboardData = async () => {
     .sort((a, b) => new Date(b.issue_date) - new Date(a.issue_date))
     .slice(0, 5);
 
+  // ==========================================================================
+  // PROSPECT STATS (Phase 2)
+  // ==========================================================================
+  
+  // Active stages (not won, lost, or no_response)
+  const activeStages = ['identified', 'contacted', 'replied', 'call_scheduled', 'proposal_sent', 'negotiating'];
+  const closedStages = ['won', 'lost', 'no_response'];
+  
+  // Active prospects (in pipeline)
+  const activeProspects = prospects.filter(p => activeStages.includes(p.stage));
+  
+  // Won prospects
+  const wonProspects = prospects.filter(p => p.stage === 'won');
+  
+  // Pipeline value (estimated value of active prospects in USD)
+  const pipelineValueUSD = activeProspects.reduce((sum, p) => {
+    if (!p.estimated_value) return sum;
+    return sum + convertCurrency(p.estimated_value, p.currency || 'USD', 'USD');
+  }, 0);
+  
+  // Prospects needing follow-up (next_follow_up is today or past)
+  const needsFollowUp = prospects.filter(p => {
+    if (!p.next_follow_up) return false;
+    if (closedStages.includes(p.stage)) return false;
+    const followUpDate = parseISO(p.next_follow_up);
+    return isBefore(followUpDate, now) || format(followUpDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd');
+  });
+  
+  // Recent prospects (last 5 added)
+  const recentProspects = [...prospects]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 5);
+  
+  // Prospects by stage (for mini pipeline view)
+  const prospectsByStage = activeStages.reduce((acc, stage) => {
+    acc[stage] = prospects.filter(p => p.stage === stage).length;
+    return acc;
+  }, {});
+
   // Get monthly target in USD for calculations
   const monthlyTargetUSD = convertCurrency(
     settings.monthly_income_target, 
@@ -162,6 +211,13 @@ const fetchDashboardData = async () => {
   
   const savingsTargetUSD = convertCurrency(
     settings.savings_goal,
+    settings.savings_goal_currency,
+    'USD'
+  );
+
+  // Current savings converted to USD
+  const currentSavingsUSD = convertCurrency(
+    settings.current_savings || 0,
     settings.savings_goal_currency,
     'USD'
   );
@@ -195,8 +251,9 @@ const fetchDashboardData = async () => {
     ? Math.min((monthlyRevenueUSD / monthlyTargetUSD) * 100, 100) 
     : 0;
   
+  // Savings progress uses current_savings (manually updated in Settings)
   const savingsProgress = savingsTargetUSD > 0 
-    ? Math.min((totalRevenueUSD / savingsTargetUSD) * 100, 100) 
+    ? Math.min((currentSavingsUSD / savingsTargetUSD) * 100, 100) 
     : 0;
 
   // Months meeting target
@@ -224,12 +281,26 @@ const fetchDashboardData = async () => {
     overdueCount: overdueInvoices.length,
     recentInvoices,
     
+    // ==========================================================================
+    // PROSPECT DATA (Phase 2)
+    // ==========================================================================
+    prospects: {
+      active: activeProspects.length,
+      total: prospects.length,
+      pipelineValue: pipelineValueUSD,
+      needsFollowUp: needsFollowUp.length,
+      wonCount: wonProspects.length,
+      byStage: prospectsByStage,
+      recent: recentProspects,
+    },
+    
     // Chart data
     monthlyData,
     
     // Targets from settings (converted to USD for consistency)
     monthlyTarget: monthlyTargetUSD,
     savingsTarget: savingsTargetUSD,
+    currentSavings: currentSavingsUSD,
     monthlyProgress,
     savingsProgress,
     monthsMeetingTarget,
@@ -240,6 +311,7 @@ const fetchDashboardData = async () => {
       monthlyIncomeCurrency: settings.monthly_income_currency,
       savingsGoal: settings.savings_goal,
       savingsGoalCurrency: settings.savings_goal_currency,
+      currentSavings: settings.current_savings || 0,
       goalTargetDate: settings.goal_target_date
     },
     

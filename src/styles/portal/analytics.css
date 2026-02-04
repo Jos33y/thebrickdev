@@ -1,0 +1,454 @@
+/**
+ * ==========================================================================
+ * ANALYTICS STYLES - CRM Analytics Dashboard
+ * ==========================================================================
+ */
+
+/* ==========================================================================
+   MAIN CONTAINER
+   ========================================================================== */
+
+.prospect-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prospect-analytics__error {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 10px;
+}
+
+/* ==========================================================================
+   SUMMARY CARDS (Top Row)
+   ========================================================================== */
+
+.analytics-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.analytics-summary__card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analytics-summary__card--primary {
+  background: rgba(197, 75, 26, 0.08);
+  border-color: rgba(197, 75, 26, 0.2);
+}
+
+.analytics-summary__label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analytics-summary__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.analytics-summary__value--success {
+  color: #22c55e;
+}
+
+.analytics-summary__sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   ANALYTICS ROW (Two Column Layout)
+   ========================================================================== */
+
+.analytics-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* ==========================================================================
+   ANALYTICS CARD
+   ========================================================================== */
+
+.analytics-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.analytics-card--full {
+  grid-column: 1 / -1;
+}
+
+.analytics-card__header {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.analytics-card__header h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.analytics-card__body {
+  padding: 12px 14px;
+}
+
+.analytics-card__body--chart {
+  padding: 8px;
+}
+
+.analytics-card__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Chart row layout (pie + legend side by side) */
+.analytics-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   COMPARISON (This Month Section)
+   ========================================================================== */
+
+.analytics-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analytics-comparison__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.analytics-comparison__item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.analytics-comparison__label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.analytics-comparison__value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.analytics-comparison__value--money {
+  color: #22c55e;
+}
+
+.analytics-comparison__change {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.analytics-comparison__change.positive {
+  color: #22c55e;
+}
+
+.analytics-comparison__change.negative {
+  color: #ef4444;
+}
+
+/* ==========================================================================
+   LEGEND (Pie Chart)
+   ========================================================================== */
+
+.analytics-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.analytics-legend--vertical {
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  gap: 6px;
+}
+
+.analytics-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+}
+
+.analytics-legend__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.analytics-legend__label {
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.analytics-legend__value {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   RANKINGS (Top Converting Sources)
+   ========================================================================== */
+
+.analytics-rankings {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.analytics-ranking-item:last-child {
+  border-bottom: none;
+}
+
+.analytics-ranking-item__rank {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(197, 75, 26, 0.15);
+  color: var(--color-primary);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.analytics-ranking-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.analytics-ranking-item__name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.analytics-ranking-item__stats {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.analytics-ranking-item__value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #22c55e;
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================================
+   STATS GRID (Overall Statistics)
+   ========================================================================== */
+
+.analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.analytics-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.analytics-stat:last-child {
+  border-right: none;
+}
+
+.analytics-stat__label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.analytics-stat__value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.analytics-stat__value--success {
+  color: #22c55e;
+}
+
+.analytics-stat__value--danger {
+  color: #ef4444;
+}
+
+/* ==========================================================================
+   VIEW TOGGLE (List / Kanban / Analytics)
+   ========================================================================== */
+
+.view-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.view-toggle__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.view-toggle__btn:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.view-toggle__btn--active {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   HEADER ACTIONS
+   ========================================================================== */
+
+.prospects-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .analytics-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .analytics-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .analytics-stat {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  
+  .analytics-stat:nth-child(3),
+  .analytics-stat:nth-child(6) {
+    border-right: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .analytics-stat:nth-child(odd) {
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  
+  .analytics-stat:nth-child(even) {
+    border-right: none;
+  }
+  
+  .analytics-chart-row {
+    flex-direction: column;
+  }
+  
+  .analytics-chart-row > div:first-child {
+    width: 100% !important;
+  }
+  
+  .analytics-legend--vertical {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-stat {
+    border-right: none;
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}

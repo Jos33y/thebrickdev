@@ -14,6 +14,7 @@ import {
   ClientsIcon,
   InvoiceIcon,
   PaymentIcon,
+  ProspectsIcon,
   SettingsIcon,
   LogoutIcon,
 } from '../../components/common/Icons';
@@ -32,6 +33,7 @@ const PortalLayout = () => {
   // Navigation items
   const navItems = [
     { path: '/portal/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { path: '/portal/prospects', label: 'Prospects', icon: ProspectsIcon },
     { path: '/portal/clients', label: 'Clients', icon: ClientsIcon },
     { path: '/portal/invoices', label: 'Invoices', icon: InvoiceIcon },
     { path: '/portal/payments', label: 'Payments', icon: PaymentIcon },

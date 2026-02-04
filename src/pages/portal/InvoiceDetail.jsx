@@ -1,10 +1,7 @@
 /**
  * InvoiceDetail - Single invoice view
  * 
- * Shows invoice details, line items, payments, and status actions.
- * Includes PDF download and Send Invoice functionality.
- * 
- * Now uses Settings for company info instead of hardcoded COMPANY_INFO
+ * FIXED: Uses amount_received and currency_received (correct DB fields)
  */
 
 import { useState } from 'react';
@@ -38,7 +35,7 @@ import { useSettings } from '../../hooks/useSettings';
 import { downloadInvoicePDF } from '../../lib/pdf';
 import { formatCurrency, formatDate } from '../../lib/formatters';
 
-// Payment columns for table
+// Payment columns for table - FIXED field names
 const paymentColumns = [
   {
     key: 'received_date',
@@ -46,9 +43,9 @@ const paymentColumns = [
     render: (value) => formatDate(value),
   },
   {
-    key: 'amount',
+    key: 'amount_received',
     header: 'Amount',
-    render: (value, row) => formatCurrency(value, row.currency),
+    render: (value, row) => formatCurrency(value, row.currency_received),
   },
   {
     key: 'payment_type',
@@ -88,14 +85,14 @@ const InvoiceDetail = () => {
     settings?.company_country,
   ].filter(Boolean).join(', ');
 
-  // Calculate payment summary
+  // Calculate payment summary - FIXED: use amount_received
   const paymentSummary = invoice?.payments ? {
     totalPaid: invoice.payments
       .filter(p => p.status === 'cleared')
-      .reduce((sum, p) => sum + (p.amount || 0), 0),
+      .reduce((sum, p) => sum + (Number(p.amount_received) || 0), 0),
     pendingAmount: invoice.payments
       .filter(p => p.status === 'pending')
-      .reduce((sum, p) => sum + (p.amount || 0), 0),
+      .reduce((sum, p) => sum + (Number(p.amount_received) || 0), 0),
   } : { totalPaid: 0, pendingAmount: 0 };
 
   const amountDue = (invoice?.total || 0) - paymentSummary.totalPaid;

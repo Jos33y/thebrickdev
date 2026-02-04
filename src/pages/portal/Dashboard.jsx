@@ -1,6 +1,7 @@
 /**
  * Dashboard - The Brick Dev Portal
  * Premium SaaS-quality business dashboard
+ * Updated with Sales Pipeline (Phase 2)
  */
 
 import { useState } from 'react';
@@ -26,11 +27,23 @@ import {
   CheckCircleIcon,
   PlusIcon,
   PaymentIcon,
-  WalletIcon
+  WalletIcon,
+  ProspectsIcon,
+  TargetIcon
 } from '../../components/common/Icons';
 import '../../styles/portal/dashboard.css';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN'];
+
+// Stage labels for display
+const STAGE_LABELS = {
+  identified: 'New',
+  contacted: 'Contacted',
+  replied: 'Replied',
+  call_scheduled: 'Call',
+  proposal_sent: 'Proposal',
+  negotiating: 'Negotiating',
+};
 
 // Helper to format amount in selected currency
 const formatInCurrency = (amount, fromCurrency, toCurrency) => {
@@ -102,6 +115,10 @@ const Dashboard = () => {
         <Link to="/portal/invoices/new" className="dash-action dash-action--primary">
           <PlusIcon size={15} />
           <span>New Invoice</span>
+        </Link>
+        <Link to="/portal/prospects/new" className="dash-action">
+          <ProspectsIcon size={15} />
+          <span>Add Prospect</span>
         </Link>
         <Link to="/portal/payments/new" className="dash-action">
           <PaymentIcon size={15} />
@@ -193,7 +210,7 @@ const Dashboard = () => {
               <div className="dash-target__row">
                 <span className="dash-target__name">Savings Goal</span>
                 <span className="dash-target__amounts">
-                  <strong>{displayAmount(data?.totalRevenue)}</strong>
+                  <strong>{displayAmount(data?.currentSavings)}</strong>
                   <span className="dash-target__sep">/</span>
                   {formatCurrency(savingsTargetDisplay, currency)}
                 </span>
@@ -206,13 +223,24 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Business Health Card */}
+        {/* Business Health Card - Now includes pipeline */}
         <section className="dash-card">
           <div className="dash-card__head">
             <h2>Business Health</h2>
           </div>
           <div className="dash-card__body">
             <div className="dash-health">
+              {/* Active Prospects */}
+              <div className="dash-health__item">
+                <ProspectsIcon size={18} />
+                <div className="dash-health__data">
+                  <span className="dash-health__num">{data?.prospects?.active || 0}</span>
+                  <span className="dash-health__label">In Pipeline</span>
+                </div>
+                <span className="dash-health__extra">{displayAmount(data?.prospects?.pipelineValue)} value</span>
+              </div>
+
+              {/* Active Clients */}
               <div className="dash-health__item">
                 <ClientsIcon size={18} />
                 <div className="dash-health__data">
@@ -222,6 +250,7 @@ const Dashboard = () => {
                 <span className="dash-health__extra">{data?.totalClients || 0} total</span>
               </div>
 
+              {/* Pending Invoices */}
               <div className="dash-health__item">
                 <InvoiceIcon size={18} />
                 <div className="dash-health__data">
@@ -231,13 +260,14 @@ const Dashboard = () => {
                 <span className="dash-health__extra">Awaiting payment</span>
               </div>
 
-              <div className={`dash-health__item ${data?.overdueCount > 0 ? 'dash-health__item--danger' : 'dash-health__item--success'}`}>
-                {data?.overdueCount > 0 ? <AlertTriangleIcon size={18} /> : <CheckCircleIcon size={18} />}
+              {/* Follow-ups Needed */}
+              <div className={`dash-health__item ${data?.prospects?.needsFollowUp > 0 ? 'dash-health__item--danger' : 'dash-health__item--success'}`}>
+                {data?.prospects?.needsFollowUp > 0 ? <AlertTriangleIcon size={18} /> : <CheckCircleIcon size={18} />}
                 <div className="dash-health__data">
-                  <span className="dash-health__num">{data?.overdueCount || 0}</span>
-                  <span className="dash-health__label">Overdue</span>
+                  <span className="dash-health__num">{data?.prospects?.needsFollowUp || 0}</span>
+                  <span className="dash-health__label">Follow-ups Due</span>
                 </div>
-                <span className="dash-health__extra">{data?.overdueCount > 0 ? 'Needs attention' : 'All clear'}</span>
+                <span className="dash-health__extra">{data?.prospects?.needsFollowUp > 0 ? 'Needs attention' : 'All clear'}</span>
               </div>
             </div>
           </div>
@@ -282,53 +312,44 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* ==================== SOURCES + ACTIVITY ==================== */}
+      {/* ==================== PIPELINE + INVOICES ROW ==================== */}
       <div className="dash-row">
-        {/* Income Sources */}
+        {/* Sales Pipeline */}
         <section className="dash-card">
           <div className="dash-card__head">
-            <h2>Income Sources</h2>
+            <h2>Sales Pipeline</h2>
+            <Link to="/portal/prospects" className="dash-link">View all <ChevronRightIcon size={14} /></Link>
           </div>
-          <div className="dash-card__body">
-            <div className="dash-sources">
-              {/* By Channel */}
-              <div className="dash-sources__group">
-                <h3>By Channel</h3>
-                {Object.entries(sourceColors).map(([key, color]) => {
-                  const amount = data?.incomeBySource?.[key] || 0;
-                  const pct = data?.totalRevenue > 0 ? (amount / data.totalRevenue) * 100 : 0;
-                  return (
-                    <div key={key} className="dash-source">
-                      <span className="dash-source__dot" style={{ background: color }} />
-                      <span className="dash-source__name">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                      <div className="dash-source__bar">
-                        <div style={{ width: `${pct}%`, background: color }} />
-                      </div>
-                      <span className="dash-source__amt">{displayAmount(amount)}</span>
+          <div className="dash-card__body dash-card__body--list">
+            {isLoading ? (
+              <div className="dash-skeleton" style={{ height: 180 }} />
+            ) : data?.prospects?.recent?.length > 0 ? (
+              <div className="dash-prospects">
+                {data.prospects.recent.map(prospect => (
+                  <Link key={prospect.id} to={`/portal/prospects/${prospect.id}`} className="dash-prospect">
+                    <div className="dash-prospect__left">
+                      <span className="dash-prospect__name">{prospect.name}</span>
+                      <span className="dash-prospect__company">{prospect.company || prospect.source}</span>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* By Currency */}
-              <div className="dash-sources__group">
-                <h3>By Currency Received</h3>
-                {Object.entries(currencyColors).map(([key, color]) => {
-                  const amount = data?.incomeByCurrency?.[key] || 0;
-                  const pct = totalByCurrency > 0 ? (amount / totalByCurrency) * 100 : 0;
-                  return (
-                    <div key={key} className="dash-source">
-                      <span className="dash-source__dot" style={{ background: color }} />
-                      <span className="dash-source__name">{key}</span>
-                      <div className="dash-source__bar">
-                        <div style={{ width: `${pct}%`, background: color }} />
-                      </div>
-                      <span className="dash-source__amt">{formatCurrency(amount, key)}</span>
+                    <div className="dash-prospect__right">
+                      {prospect.estimated_value && (
+                        <span className="dash-prospect__value">
+                          {formatCurrency(prospect.estimated_value, prospect.currency || 'USD')}
+                        </span>
+                      )}
+                      <span className={`dash-prospect__stage dash-prospect__stage--${prospect.stage}`}>
+                        {STAGE_LABELS[prospect.stage] || prospect.stage}
+                      </span>
                     </div>
-                  );
-                })}
+                  </Link>
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="dash-empty">
+                <p>No prospects yet</p>
+                <Link to="/portal/prospects/new" className="dash-action dash-action--sm">Add Prospect</Link>
+              </div>
+            )}
           </div>
         </section>
 
@@ -365,6 +386,54 @@ const Dashboard = () => {
           </div>
         </section>
       </div>
+
+      {/* ==================== SOURCES ROW ==================== */}
+      <section className="dash-card">
+        <div className="dash-card__head">
+          <h2>Income Sources</h2>
+        </div>
+        <div className="dash-card__body">
+          <div className="dash-sources">
+            {/* By Channel */}
+            <div className="dash-sources__group">
+              <h3>By Channel</h3>
+              {Object.entries(sourceColors).map(([key, color]) => {
+                const amount = data?.incomeBySource?.[key] || 0;
+                const pct = data?.totalRevenue > 0 ? (amount / data.totalRevenue) * 100 : 0;
+                return (
+                  <div key={key} className="dash-source">
+                    <span className="dash-source__dot" style={{ background: color }} />
+                    <span className="dash-source__name">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                    <div className="dash-source__bar">
+                      <div style={{ width: `${pct}%`, background: color }} />
+                    </div>
+                    <span className="dash-source__amt">{displayAmount(amount)}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* By Currency */}
+            <div className="dash-sources__group">
+              <h3>By Currency Received</h3>
+              {Object.entries(currencyColors).map(([key, color]) => {
+                const amount = data?.incomeByCurrency?.[key] || 0;
+                const pct = totalByCurrency > 0 ? (amount / totalByCurrency) * 100 : 0;
+                return (
+                  <div key={key} className="dash-source">
+                    <span className="dash-source__dot" style={{ background: color }} />
+                    <span className="dash-source__name">{key}</span>
+                    <div className="dash-source__bar">
+                      <div style={{ width: `${pct}%`, background: color }} />
+                    </div>
+                    <span className="dash-source__amt">{formatCurrency(amount, key)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

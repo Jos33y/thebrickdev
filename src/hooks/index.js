@@ -1,57 +1,87 @@
 /**
- * Custom Hooks
+ * Hooks Index
  * 
- * Reusable hooks for data fetching, auth, and common logic.
+ * All custom hooks for the portal.
+ * NO DUPLICATE EXPORTS - each function exported from ONE file only.
  */
 
-export { useAuth } from './useAuth';
+// Authentication
+export { default as useAuth, useUser, useSignOut } from './useAuth';
 
-// Client hooks
-export {
-  useClients,
-  useClient,
-  useClientWithInvoices,
-  useCreateClient,
-  useUpdateClient,
-  useDeleteClient,
+// Clients
+export { 
+  default as useClients, 
+  useClient, 
+  useCreateClient, 
+  useUpdateClient, 
+  useDeleteClient 
 } from './useClients';
 
-// Invoice hooks
-export {
-  useInvoices,
-  useInvoice,
-  useCreateInvoice,
-  useUpdateInvoice,
+// Invoices
+export { 
+  default as useInvoices, 
+  useInvoice, 
+  useCreateInvoice, 
+  useUpdateInvoice, 
   useDeleteInvoice,
-  useUpdateInvoiceStatus,
+  useUpdateInvoiceStatus 
 } from './useInvoices';
 
-// Payment hooks
-export {
-  usePayments,
-  usePayment,
-  useCreatePayment,
-  useUpdatePayment,
-  useDeletePayment,
-  useUpdatePaymentStatus,
+// Payments
+export { 
+  default as usePayments, 
+  usePayment, 
+  useCreatePayment, 
+  useUpdatePayment, 
+  useDeletePayment 
 } from './usePayments';
 
-// Email hooks
-export { useSendInvoice } from './useSendInvoice';
-
-// Dashboard hooks
+// Prospects
 export { 
-  useDashboard,
-  convertCurrency 
-} from './useDashboard';
+  default as useProspects,
+  useProspect,
+  useProspectsByStage,
+  useCreateProspect,
+  useUpdateProspect,
+  useDeleteProspect,
+  useUpdateProspectStage,
+  useAddProspectActivity,
+  useConvertToClient,
+} from './useProspects';
 
-// Settings hooks
+// Email Templates (CRUD only)
 export {
-  useSettings,
+  default as useEmailTemplates,
+  useTemplatesForProspect,
+  useAllEmailTemplates,
+  useEmailTemplate,
+  useCreateEmailTemplate,
+  useUpdateEmailTemplate,
+  useDeleteEmailTemplate,
+  buildTemplateVariables,
+  replaceTemplateVariables,
+  getSuggestedTemplate,
+} from './useEmailTemplates';
+
+// Email Sending (separate from templates)
+export { useSendProspectEmail } from './useSendProspectEmail';
+
+// Analytics
+export { default as useProspectAnalytics } from './useProspectAnalytics';
+
+// Dashboard
+export { default as useDashboard } from './useDashboard';
+
+// Settings
+export { 
+  default as useSettings, 
   useUpdateSettings,
-  useChangePassword,
+  useChangePassword 
 } from './useSettings';
 
-// Settings-integrated helpers
-export { useInvoiceDefaults } from './useInvoiceDefaults';
-export { useCompanyInfo, getCompanyInfo } from './useCompanyInfo';
+// Settings integration hooks
+export { default as useInvoiceDefaults } from './useInvoiceDefaults';
+export { default as useCompanyInfo } from './useCompanyInfo';
+
+// Invoice sending
+export { default as useSendInvoice } from './useSendInvoice';

@@ -679,3 +679,113 @@
     padding: 10px;
   }
 }
+/* ==================== PROSPECTS LIST ==================== */
+.dash-prospects {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-prospect {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  text-decoration: none;
+  transition: background 0.1s ease;
+}
+
+.dash-prospect:last-child {
+  border-bottom: none;
+}
+
+.dash-prospect:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dash-prospect__left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dash-prospect__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-prospect__company {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+.dash-prospect__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.dash-prospect__value {
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+}
+
+.dash-prospect__stage {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* Stage colors */
+.dash-prospect__stage--identified {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.dash-prospect__stage--contacted {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.dash-prospect__stage--replied {
+  background: rgba(14, 165, 233, 0.15);
+  color: #38bdf8;
+}
+
+.dash-prospect__stage--call_scheduled {
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+}
+
+.dash-prospect__stage--proposal_sent {
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+}
+
+.dash-prospect__stage--negotiating {
+  background: rgba(234, 88, 12, 0.15);
+  color: #f97316;
+}
+
+.dash-prospect__stage--won {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.dash-prospect__stage--lost,
+.dash-prospect__stage--no_response {
+  background: rgba(107, 114, 128, 0.15);
+  color: #6b7280;
+}

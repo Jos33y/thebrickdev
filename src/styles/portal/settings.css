@@ -92,3 +92,60 @@
   color: var(--text-muted);
   margin-top: 4px;
 }
+
+/* =============================================================================
+   SETTINGS SAVINGS PROGRESS - Add to settings.css
+   ============================================================================= */
+
+.settings__savings-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #333);
+}
+
+.settings__savings-progress {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-tertiary, #1a1a1a);
+  border-radius: 0.5rem;
+}
+
+.settings__savings-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.settings__savings-progress-header span:first-child {
+  color: var(--text-secondary, #888);
+}
+
+.settings__savings-progress-header span:last-child {
+  font-weight: 500;
+  color: var(--text-primary, #fff);
+}
+
+.settings__savings-progress-bar {
+  height: 8px;
+  background: var(--bg-secondary, #252525);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.settings__savings-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary, #ea580c), var(--primary-light, #f97316));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.settings__savings-progress-percent {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: right;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary, #ea580c);
+}
