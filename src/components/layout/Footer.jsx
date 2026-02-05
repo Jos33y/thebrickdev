@@ -90,7 +90,7 @@ const Footer = () => {
               </div>
             </div>
             <p className="footer-tagline">
-              We build websites, apps, and platforms that bring customers and grow your business.
+              We build custom systems that run your business, and websites that bring customers.
             </p>
 
             {/* Social Links */}

@@ -54,7 +54,7 @@ const Hero = () => {
 
           {/* Description */}
           <p className="hero-description">
-            Websites, apps, and online stores that bring customers and grow your business.
+            Custom systems that run your business. Websites that actually convert.
           </p>
 
           {/* CTAs */}

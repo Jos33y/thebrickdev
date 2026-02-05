@@ -4,6 +4,7 @@
  */
 
 import {
+  PortalIcon,
   WebsiteIcon,
   EcommerceIcon,
   WebAppIcon,
@@ -17,8 +18,17 @@ import {
 
 const services = [
   {
-    id: 'websites',
+    id: 'portal',
     number: '01',
+    icon: PortalIcon,
+    title: 'Business Management Portals',
+    description: 'Custom dashboards that track your clients, appointments, inventory, sales, and finances. Built around how your business actually works, not the other way around.',
+    features: ['Daily Use', 'Real-time Reports', 'Staff Access'],
+    size: 'full'
+  },
+  {
+    id: 'websites',
+    number: '02',
     icon: WebsiteIcon,
     title: 'Websites That Convert',
     description: 'Landing pages, business sites, and portfolios designed to turn visitors into customers. Fast, responsive, and built to rank.',
@@ -27,7 +37,7 @@ const services = [
   },
   {
     id: 'ecommerce',
-    number: '02',
+    number: '03',
     icon: EcommerceIcon,
     title: 'E-commerce That Sells',
     description: 'Online stores with seamless checkout and inventory management.',
@@ -35,7 +45,7 @@ const services = [
   },
   {
     id: 'webapps',
-    number: '03',
+    number: '04',
     icon: WebAppIcon,
     title: 'Web Apps That Scale',
     description: 'Custom dashboards, booking systems, and internal tools.',
@@ -43,7 +53,7 @@ const services = [
   },
   {
     id: 'mobile',
-    number: '04',
+    number: '05',
     icon: MobileAppIcon,
     title: 'Mobile Apps',
     description: 'Native and cross-platform apps for iOS and Android. From concept to App Store, we handle the entire journey.',
@@ -52,7 +62,7 @@ const services = [
   },
   {
     id: 'api',
-    number: '05',
+    number: '06',
     icon: ApiIcon,
     title: 'API & Backend',
     description: 'Robust server architecture, database design, and API development. The invisible foundation that powers everything.',
@@ -61,7 +71,7 @@ const services = [
   },
   {
     id: 'mvp',
-    number: '06',
+    number: '07',
     icon: MvpIcon,
     title: 'MVP Development',
     description: 'Launch fast, learn faster. Get your product to market quickly.',
@@ -69,7 +79,7 @@ const services = [
   },
   {
     id: 'fintech',
-    number: '07',
+    number: '08',
     icon: FinTechIcon,
     title: 'FinTech & Trading',
     description: 'Exchanges, trading platforms, wallets, and payment systems.',
@@ -77,7 +87,7 @@ const services = [
   },
   {
     id: 'blockchain',
-    number: '08',
+    number: '09',
     icon: BlockchainIcon,
     title: 'Blockchain & Web3',
     description: 'Smart contracts, dApps, and DeFi integrations. Bringing your business to the decentralized web with security first.',
@@ -86,7 +96,7 @@ const services = [
   },
   {
     id: 'maintenance',
-    number: '09',
+    number: '10',
     icon: MaintenanceIcon,
     title: 'Maintenance & Support',
     description: 'Your project doesn\'t end at launch. Ongoing updates, security patches, performance monitoring, and dedicated support to keep everything running smooth.',

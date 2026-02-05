@@ -9,6 +9,23 @@
 
 export const projects = [
   {
+    id: 'brickdev-portal',
+    name: 'Business Management System',
+    url: null,
+    category: 'Management Portal',
+    status: 'live',
+    tagline: 'Run your business from one dashboard.',
+    description: 'A complete business management system built for The Brick Dev Studios. Tracks prospects, clients, invoices, payments, and revenue goals all in one place. Every feature was built to solve a real operational need.',
+    outcomes: [
+      'Real-time revenue dashboard with financial goals',
+      'Full CRM with prospect pipeline and email outreach',
+      'Invoice generation with PDF export and email delivery',
+      'Payment tracking across multiple currencies'
+    ],
+    techStack: ['React 19', 'Vite', 'Supabase', 'Recharts', 'Resend'],
+    screenshot: '/projects/brickdev_portal_dashboard.png',
+  },
+  {
     id: 'locappoint',
     name: 'LocAppoint',
     url: 'https://locappoint.com',
@@ -118,7 +135,7 @@ export const pricing = [
     description: 'Business websites, landing pages, portfolios',
     price: '$1,500',
     priceNote: 'Starting from',
-    timeline: '2-4 weeks',
+    timeline: '2-3 weeks',
     includes: [
       'Custom design',
       'Mobile responsive',
@@ -133,17 +150,17 @@ export const pricing = [
   {
     id: 'growth',
     name: 'Growth',
-    description: 'E-commerce, booking systems, memberships',
-    price: '$4,000',
+    description: 'Management portals, e-commerce, booking systems',
+    price: '$3,500',
     priceNote: 'Starting from',
-    timeline: '4-8 weeks',
+    timeline: '4-6 weeks',
     includes: [
       'Everything in Starter',
+      'Custom management dashboard',
+      'Client or inventory tracking',
       'Payment integration',
-      'User accounts',
-      'Admin dashboard',
       'Email notifications',
-      'Inventory/booking management',
+      'Reports and analytics',
       '45-day support'
     ],
     cta: 'Get Started',
@@ -152,16 +169,16 @@ export const pricing = [
   {
     id: 'scale',
     name: 'Scale',
-    description: 'Web apps, dashboards, complex systems',
-    price: '$8,000+',
+    description: 'Complex systems, multi-feature platforms',
+    price: '$7,000+',
     priceNote: 'Starting from',
-    timeline: '6-12 weeks',
+    timeline: '6-10 weeks',
     includes: [
       'Everything in Growth',
       'Complex business logic',
       'API integrations',
-      'Analytics & reporting',
-      'Role-based access',
+      'Role-based access control',
+      'Advanced analytics',
       'Third-party integrations',
       '60-day support'
     ],

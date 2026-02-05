@@ -20,9 +20,9 @@ const CTA = () => {
 
           {/* Content */}
           <div className="cta-content">
-            <h2 className="cta-title">Ready to build something?</h2>
+            <h2 className="cta-title">Ready to build something that works?</h2>
             <p className="cta-description">
-              Let's talk about your project and see how we can bring it to life.
+              Tell us about your business and we'll show you what's possible.
             </p>
 
             {/* Actions */}

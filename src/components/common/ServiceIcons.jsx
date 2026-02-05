@@ -3,6 +3,40 @@
  * Geometric, block-themed designs that match The Brick Dev brand
  */
 
+// Business Portal - Dashboard with sidebar and metric blocks
+export const PortalIcon = ({ size = 32, className = '' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    {/* Outer frame */}
+    <rect x="2" y="3" width="28" height="26" rx="3" stroke="currentColor" strokeWidth="2" fill="none" />
+    {/* Sidebar */}
+    <rect x="2" y="3" width="8" height="26" rx="3" fill="currentColor" opacity="0.3" />
+    <rect x="4" y="7" width="4" height="2" rx="1" fill="currentColor" opacity="0.7" />
+    <rect x="4" y="11" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5" />
+    <rect x="4" y="14" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5" />
+    <rect x="4" y="17" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5" />
+    {/* Top metric cards */}
+    <rect x="12" y="6" width="7" height="5" rx="1.5" fill="currentColor" />
+    <rect x="21" y="6" width="7" height="5" rx="1.5" fill="currentColor" opacity="0.6" />
+    {/* Chart area */}
+    <rect x="12" y="13" width="16" height="7" rx="1.5" fill="currentColor" opacity="0.4" />
+    {/* Chart bars */}
+    <rect x="14" y="17" width="2" height="2" rx="0.5" fill="currentColor" opacity="0.8" />
+    <rect x="17.5" y="15.5" width="2" height="3.5" rx="0.5" fill="currentColor" opacity="0.8" />
+    <rect x="21" y="16" width="2" height="3" rx="0.5" fill="currentColor" opacity="0.8" />
+    <rect x="24.5" y="14.5" width="2" height="4.5" rx="0.5" fill="currentColor" />
+    {/* Bottom row */}
+    <rect x="12" y="22" width="7" height="4" rx="1.5" fill="currentColor" opacity="0.5" />
+    <rect x="21" y="22" width="7" height="4" rx="1.5" fill="currentColor" opacity="0.3" />
+  </svg>
+);
+
 // Website - Browser window with blocks
 export const WebsiteIcon = ({ size = 32, className = '' }) => (
   <svg
