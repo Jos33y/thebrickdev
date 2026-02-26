@@ -8,7 +8,6 @@
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
 import { PageLoader } from './components/common';
 import Home from './pages/Home';
 
@@ -99,9 +98,6 @@ function App() {
           <Route path="*" element={<Home />} />
         </Routes>
       </BrowserRouter>
-      
-      {/* Vercel Analytics */}
-      <Analytics />
     </>
   );
 }

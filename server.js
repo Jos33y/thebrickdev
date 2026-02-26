@@ -1,25 +1,86 @@
-/**
- * API Route: /api/send-prospect-email
- * 
- * Sends email to prospect via Resend API
- * - Logs to email_send_log table
- * - Creates activity on prospect
- * - Auto-advances stage if initial outreach
- * - Sets next follow-up date
- * 
- * Required Vercel Environment Variables:
- * - RESEND_API_KEY
- * - SUPABASE_URL
- * - SUPABASE_ANON_KEY (or SUPABASE_SERVICE_ROLE_KEY for full access)
- */
-
+import express from 'express';
 import { createClient } from '@supabase/supabase-js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Parse JSON bodies
+app.use(express.json({ limit: '10mb' }));
+
+// ─── API ROUTES ───────────────────────────────────────────────
+
+// POST /api/send-invoice
+app.post('/api/send-invoice', async (req, res) => {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+  if (!RESEND_API_KEY) {
+    return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
   }
 
+  try {
+    const { to, subject, html, text, pdfBase64, pdfUrl, invoiceNumber } = req.body;
+
+    if (!to || !subject || !html) {
+      return res.status(400).json({ error: 'Missing required fields: to, subject, html' });
+    }
+
+    const attachments = [];
+
+    if (pdfBase64) {
+      attachments.push({
+        content: pdfBase64,
+        filename: `${invoiceNumber || 'invoice'}.pdf`,
+      });
+    } else if (pdfUrl) {
+      attachments.push({
+        path: pdfUrl,
+        filename: `${invoiceNumber || 'invoice'}.pdf`,
+      });
+    }
+
+    const emailPayload = {
+      from: 'The Brick Dev Studios <developer@thebrickdev.com>',
+      reply_to: 'hello@thebrickdev.com',
+      to: [to],
+      subject,
+      html,
+      text,
+    };
+
+    if (attachments.length > 0) {
+      emailPayload.attachments = attachments;
+    }
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailPayload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Resend error:', data);
+      return res.status(400).json({ error: data.message || 'Failed to send email' });
+    }
+
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+// POST /api/send-prospect-email
+app.post('/api/send-prospect-email', async (req, res) => {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -47,10 +108,9 @@ export default async function handler(req, res) {
       fromEmail,
     } = req.body;
 
-    // Validate
     if (!to || !subject || !body || !prospectId) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: to, subject, body, prospectId' 
+      return res.status(400).json({
+        error: 'Missing required fields: to, subject, body, prospectId'
       });
     }
 
@@ -84,7 +144,7 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
-    // Send via Resend REST API
+    // Send via Resend
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -105,8 +165,7 @@ export default async function handler(req, res) {
 
     if (!resendResponse.ok) {
       console.error('Resend error:', emailData);
-      
-      // Log failed attempt
+
       await supabase.from('email_send_log').insert({
         prospect_id: prospectId,
         template_id: templateId || null,
@@ -133,7 +192,7 @@ export default async function handler(req, res) {
       resend_id: emailData?.id || null,
     });
 
-    // Get template type label for activity
+    // Get template type label
     const typeLabels = {
       initial_outreach: 'Initial Outreach',
       follow_up_1: 'Follow-up #1',
@@ -164,11 +223,11 @@ export default async function handler(req, res) {
       .eq('id', prospectId)
       .single();
 
-    // Auto-advance stage and set follow-up based on email type
+    // Auto-advance stage and set follow-up
     if (templateType === 'initial_outreach' && prospect?.stage === 'identified') {
       await supabase
         .from('prospects')
-        .update({ 
+        .update({
           stage: 'contacted',
           next_follow_up: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         })
@@ -182,14 +241,14 @@ export default async function handler(req, res) {
     } else if (templateType === 'follow_up_1') {
       await supabase
         .from('prospects')
-        .update({ 
+        .update({
           next_follow_up: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         })
         .eq('id', prospectId);
     } else if (templateType === 'follow_up_2') {
       await supabase
         .from('prospects')
-        .update({ 
+        .update({
           next_follow_up: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         })
         .eq('id', prospectId);
@@ -210,4 +269,20 @@ export default async function handler(req, res) {
     console.error('Send prospect email error:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
-}
+});
+
+// ─── STATIC FILES ─────────────────────────────────────────────
+
+// Serve Vite build output
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// SPA fallback — all non-API routes serve index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+// ─── START ────────────────────────────────────────────────────
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
