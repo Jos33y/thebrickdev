@@ -277,7 +277,7 @@ app.post('/api/send-prospect-email', async (req, res) => {
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // SPA fallback — all non-API routes serve index.html
-app.get('*', (req, res) => {
+app.get('{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
