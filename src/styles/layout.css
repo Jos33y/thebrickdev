@@ -97,16 +97,29 @@
   gap: var(--space-12);
 }
 
-@media (min-width: 768px) {
+/* Tablet: 2 columns */
+@media (min-width: 640px) and (max-width: 1023px) {
   .footer-inner {
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: var(--space-16);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10);
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Desktop: brand wider + 3 link columns */
+@media (min-width: 1024px) {
+  .footer-inner {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: var(--space-12);
   }
 }
 
 /* Footer Brand */
 .footer-brand {
-  max-width: 320px;
+  max-width: 360px;
 }
 
 .footer-logo {
@@ -143,6 +156,42 @@
   line-height: var(--leading-relaxed);
 }
 
+/* Footer Business Info Block */
+.footer-business {
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-color-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-style: normal;
+}
+
+.footer-business-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.2px;
+}
+
+.footer-business-line {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: var(--leading-normal);
+  display: block;
+}
+
+.footer-business-link {
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  text-decoration: none;
+}
+
+.footer-business-link:hover {
+  color: var(--color-primary);
+}
+
 /* Footer Links */
 .footer-section-title {
   font-size: var(--text-sm);
@@ -175,6 +224,7 @@
   display: flex;
   gap: var(--space-3);
   margin-top: var(--space-6);
+  flex-wrap: wrap;
 }
 
 .footer-social-link {
@@ -213,9 +263,21 @@
   }
 }
 
+.footer-bottom-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .footer-copyright {
   font-size: var(--text-sm);
   color: var(--text-muted);
+}
+
+.footer-registration {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  letter-spacing: 0.3px;
 }
 
 .footer-meta {
@@ -224,6 +286,7 @@
   gap: var(--space-6);
   font-size: var(--text-sm);
   color: var(--text-muted);
+  flex-wrap: wrap;
 }
 
 .footer-meta-item {

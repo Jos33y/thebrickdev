@@ -12,7 +12,8 @@
  * 6. Header      - Navigation/navbar
  * 7. Hero        - Hero section
  * 8. Sections    - Other page sections
- * 9. Page Loader - Loading animation
+ * 9. Legal       - Terms, Refund, Privacy pages
+ * 10. Page Loader - Loading animation
  */
 
 /* Google Fonts */
@@ -44,7 +45,10 @@
 
 @import './process.css';
 
-/* Layer 9: Page Loader */
+/* Layer 9: Legal Pages */
+@import './legal.css';
+
+/* Layer 10: Page Loader */
 @import './pageloader.css';
 
 /* Portal styles */

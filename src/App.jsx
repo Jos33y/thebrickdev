@@ -3,6 +3,9 @@
  *
  * Routes:
  * - / : Public portfolio site
+ * - /terms : Terms and Conditions
+ * - /refund-policy : Refund Policy
+ * - /privacy-policy : Privacy Policy
  * - /invoice/:token : Public invoice preview (client-facing, no auth)
  * - /portal/* : Private admin portal
  */
@@ -11,6 +14,11 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { PageLoader } from './components/common';
 import Home from './pages/Home';
+
+// Legal pages
+import Terms from './pages/Terms';
+import RefundPolicy from './pages/RefundPolicy';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Public invoice preview
 import PublicInvoice from './pages/PublicInvoice';
@@ -59,6 +67,11 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
+
+          {/* Legal Pages */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Public invoice preview - shareable client-facing link */}
           <Route path="/invoice/:token" element={<PublicInvoice />} />

@@ -34,7 +34,7 @@ app.post('/api/send-invoice', async (req, res) => {
   }
 
   try {
-    const { to, subject, html, text, pdfBase64, pdfUrl, invoiceNumber } = req.body;
+    const { to, subject, html, text, pdfBase64, pdfUrl, invoiceNumber, from, replyTo } = req.body;
 
     if (!to || !subject || !html) {
       return res.status(400).json({ error: 'Missing required fields: to, subject, html' });
@@ -55,8 +55,8 @@ app.post('/api/send-invoice', async (req, res) => {
     }
 
     const emailPayload = {
-      from: 'The Brick Dev Studios <developer@thebrickdev.com>',
-      reply_to: 'hello@thebrickdev.com',
+      from: from || 'Billing @ The Brick Dev <billing@thebrickdev.com>',
+      reply_to: replyTo || 'billing@thebrickdev.com',
       to: [to],
       subject,
       html,

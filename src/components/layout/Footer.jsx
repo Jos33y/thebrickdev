@@ -35,6 +35,12 @@ const Footer = () => {
     { href: contact.social.telegram, label: 'Telegram' },
   ];
 
+  const legalLinks = [
+    { to: '/terms', label: 'Terms and Conditions' },
+    { to: '/refund-policy', label: 'Refund Policy' },
+    { to: '/privacy-policy', label: 'Privacy Policy' },
+  ];
+
   const socialLinks = [
     { href: contact.social.linkedin, icon: LinkedinIcon, label: 'LinkedIn' },
     { href: contact.social.github, icon: GithubIcon, label: 'GitHub' },
@@ -66,12 +72,12 @@ const Footer = () => {
     e.preventDefault();
     const newCount = clickCount + 1;
     setClickCount(newCount);
-    
+
     if (newCount >= 5) {
       setClickCount(0);
       navigate('/portal');
     }
-    
+
     // Reset count after 2 seconds of no clicks
     setTimeout(() => setClickCount(0), 2000);
   };
@@ -92,6 +98,20 @@ const Footer = () => {
             <p className="footer-tagline">
               We build custom systems that run your business, and websites that bring customers.
             </p>
+
+            {/* Business Info Block (Flutterwave compliance) */}
+            <address className="footer-business">
+              <div className="footer-business-name">The Brick Dev Studios</div>
+              <div className="footer-business-line">6 Funmilayo Awodiya Close</div>
+              <div className="footer-business-line">Ige Estate, Ajasa/Amikanle</div>
+              <div className="footer-business-line">Lagos, Nigeria</div>
+              <a href="tel:+2347037344408" className="footer-business-line footer-business-link">
+                +234 703 734 4408
+              </a>
+              <a href={`mailto:${contact.email}`} className="footer-business-line footer-business-link">
+                {contact.email}
+              </a>
+            </address>
 
             {/* Social Links */}
             <div className="footer-social">
@@ -144,13 +164,34 @@ const Footer = () => {
               ))}
             </div>
           </div>
+
+          {/* Legal Column */}
+          <div className="footer-section">
+            <h4 className="footer-section-title">Legal</h4>
+            <div className="footer-links">
+              {legalLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="footer-link"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Footer Bottom */}
         <div className="footer-bottom">
-          <p className="footer-copyright">
-            © {currentYear} The Brick Dev Studios. All rights reserved.
-          </p>
+          <div className="footer-bottom-left">
+            <p className="footer-copyright">
+              © {currentYear} The Brick Dev Studios. All rights reserved.
+            </p>
+            <p className="footer-registration">
+              Registered in Nigeria · BN 8617842
+            </p>
+          </div>
 
           <div className="footer-meta">
             <span className="footer-meta-item">
