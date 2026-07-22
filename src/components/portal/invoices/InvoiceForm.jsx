@@ -1,10 +1,13 @@
 /**
  * InvoiceForm - Form for creating/editing invoices
- * 
- * Now integrates with Settings for defaults:
+ *
+ * Integrates with Settings for defaults:
  * - default_currency
- * - default_payment_terms  
+ * - default_payment_terms
  * - invoice_notes_template
+ *
+ * Now includes project_reference field for milestone/project labelling
+ * (e.g. "Cart & Keep, Month One"). Optional; shows in PDF + public preview.
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -68,7 +71,7 @@ const InvoiceForm = ({
 
   // Fetch clients for dropdown
   const { data: clients = [], isLoading: clientsLoading } = useClients();
-  
+
   // Fetch settings for defaults
   const { data: settings } = useSettings();
 
@@ -80,6 +83,7 @@ const InvoiceForm = ({
   // Form state - initialized with settings defaults
   const [formData, setFormData] = useState({
     client_id: preselectedClientId || '',
+    project_reference: '',
     issue_date: getTodayDate(),
     payment_terms: defaultPaymentTerms,
     due_date: calculateDueDate(getTodayDate(), defaultPaymentTerms),
@@ -111,6 +115,7 @@ const InvoiceForm = ({
     if (initialData) {
       setFormData({
         client_id: initialData.client_id || '',
+        project_reference: initialData.project_reference || '',
         issue_date: initialData.issue_date || getTodayDate(),
         payment_terms: initialData.payment_terms || PAYMENT_TERMS.NET_30,
         due_date: initialData.due_date || '',
@@ -208,9 +213,9 @@ const InvoiceForm = ({
     }
 
     // Validate items - at least one valid item
-    const validItems = items.filter(item => 
-      item.description.trim() && 
-      parseFloat(item.quantity) > 0 && 
+    const validItems = items.filter(item =>
+      item.description.trim() &&
+      parseFloat(item.quantity) > 0 &&
       parseFloat(item.unit_price) >= 0
     );
 
@@ -240,6 +245,7 @@ const InvoiceForm = ({
     const submitData = {
       ...formData,
       client_id: formData.client_id || null,
+      project_reference: formData.project_reference.trim() || null,
       tax_rate: parseFloat(formData.tax_rate) || 0,
       notes: formData.notes.trim() || null,
       items: validItems,
@@ -264,6 +270,17 @@ const InvoiceForm = ({
               error={errors.client_id}
               required
               disabled={clientsLoading}
+            />
+          </div>
+
+          {/* Project Reference (optional label for milestone-based invoicing) */}
+          <div className="invoice-form__field invoice-form__field--full">
+            <Input
+              label="Project Reference"
+              placeholder="e.g. Cart & Keep, Month One"
+              value={formData.project_reference}
+              onChange={handleChange('project_reference')}
+              hint="Optional. Shown on the invoice, PDF, and payment checkout page."
             />
           </div>
 

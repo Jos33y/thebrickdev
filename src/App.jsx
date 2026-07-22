@@ -1,8 +1,9 @@
 /**
  * App - Main Application Component
- * 
+ *
  * Routes:
  * - / : Public portfolio site
+ * - /invoice/:token : Public invoice preview (client-facing, no auth)
  * - /portal/* : Private admin portal
  */
 
@@ -10,6 +11,9 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { PageLoader } from './components/common';
 import Home from './pages/Home';
+
+// Public invoice preview
+import PublicInvoice from './pages/PublicInvoice';
 
 // Portal pages
 import PortalLayout from './pages/portal/PortalLayout';
@@ -49,51 +53,54 @@ function App() {
   return (
     <>
       {!isLoaded && <PageLoader onLoadComplete={() => setIsLoaded(true)} />}
-      
+
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          
+
+          {/* Public invoice preview - shareable client-facing link */}
+          <Route path="/invoice/:token" element={<PublicInvoice />} />
+
           {/* Portal Routes */}
           <Route path="/portal/login" element={<Login />} />
-          
+
           {/* Protected Portal Routes (wrapped in PortalLayout) */}
           <Route path="/portal" element={<PortalLayout />}>
             {/* Redirect /portal to /portal/dashboard */}
             <Route index element={<Navigate to="/portal/dashboard" replace />} />
-            
+
             {/* Dashboard */}
             <Route path="dashboard" element={<Dashboard />} />
-            
+
             {/* Prospects (CRM) */}
             <Route path="prospects" element={<Prospects />} />
             <Route path="prospects/new" element={<ProspectCreate />} />
             <Route path="prospects/pipeline" element={<ProspectsKanban />} />
             <Route path="prospects/:id" element={<ProspectDetail />} />
             <Route path="prospects/:id/edit" element={<ProspectEdit />} />
-            
+
             {/* Clients */}
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetail />} />
-            
+
             {/* Invoices */}
             <Route path="invoices" element={<Invoices />} />
             <Route path="invoices/new" element={<InvoiceCreate />} />
             <Route path="invoices/:id" element={<InvoiceDetail />} />
             <Route path="invoices/:id/edit" element={<InvoiceEdit />} />
-            
+
             {/* Payments */}
             <Route path="payments" element={<Payments />} />
             <Route path="payments/new" element={<PaymentCreate />} />
             <Route path="payments/:id" element={<PaymentDetail />} />
             <Route path="payments/:id/edit" element={<PaymentEdit />} />
-            
+
             {/* Settings */}
             <Route path="settings" element={<Settings />} />
           </Route>
-          
+
           {/* Catch all - redirect to home */}
           <Route path="*" element={<Home />} />
         </Routes>

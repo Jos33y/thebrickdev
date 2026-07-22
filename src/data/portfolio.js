@@ -118,7 +118,7 @@ export const projects = [
 // ==========================================================================
 
 export const stats = {
-  yearsExperience: '5+',
+  yearsExperience: '8+',
   completedProjects: '45+',
   happyClients: '27',
 };

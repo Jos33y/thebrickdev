@@ -26,3 +26,6 @@
 @import './prospects.css';
 @import './kanban.css';
 @import './analytics.css';
+
+/* Public-facing invoice preview (/invoice/:token) */
+@import './public-invoice.css';

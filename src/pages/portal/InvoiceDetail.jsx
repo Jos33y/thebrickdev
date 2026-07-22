@@ -1,7 +1,12 @@
 /**
- * InvoiceDetail - Single invoice view
- * 
- * FIXED: Uses amount_received and currency_received (correct DB fields)
+ * InvoiceDetail - Single invoice view (portal, authenticated)
+ *
+ * Uses the extracted <InvoicePreview /> component so the layout stays in sync
+ * with the public /invoice/:token page.
+ *
+ * Adds a "Payment Link" card to the sidebar:
+ *   - If no link generated: shows "Generate Payment Link" button
+ *   - If link exists: shows link URL, Copy button, Copy Public Preview URL button
  */
 
 import { useState } from 'react';
@@ -17,6 +22,7 @@ import {
   LoadingState,
 } from '../../components/portal/common';
 import SendInvoiceModal from '../../components/portal/invoices/SendInvoiceModal';
+import InvoicePreview from '../../components/portal/invoices/InvoicePreview';
 import {
   EditIcon,
   TrashIcon,
@@ -32,10 +38,11 @@ import {
   useDeleteInvoice,
 } from '../../hooks/useInvoices';
 import { useSettings } from '../../hooks/useSettings';
+import { useCreatePaymentLink } from '../../hooks/useCreatePaymentLink';
 import { downloadInvoicePDF } from '../../lib/pdf';
 import { formatCurrency, formatDate } from '../../lib/formatters';
 
-// Payment columns for table - FIXED field names
+// Payment columns for table
 const paymentColumns = [
   {
     key: 'received_date',
@@ -69,35 +76,41 @@ const InvoiceDetail = () => {
   const [showSendModal, setShowSendModal] = useState(false);
   const [pendingStatus, setPendingStatus] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(null);
 
   // Data fetching
   const { data: invoice, isLoading, error, refetch } = useInvoice(id);
   const { data: settings } = useSettings();
   const updateStatus = useUpdateInvoiceStatus();
   const deleteInvoice = useDeleteInvoice();
+  const { createPaymentLink, loading: creatingLink, error: linkError } = useCreatePaymentLink();
 
   // Get company info from settings
   const companyName = settings?.company_name || 'My Business';
   const companyEmail = settings?.company_email || '';
+  // Fall back to the public brand mark if no logo is set in settings
+  const companyLogo = settings?.logo_url || '/apple-touch-icon.png';
   const companyAddress = [
     settings?.company_address,
     settings?.company_city,
     settings?.company_country,
   ].filter(Boolean).join(', ');
 
-  // Calculate payment summary - FIXED: use amount_received
-  const paymentSummary = invoice?.payments ? {
-    totalPaid: invoice.payments
-      .filter(p => p.status === 'cleared')
-      .reduce((sum, p) => sum + (Number(p.amount_received) || 0), 0),
-    pendingAmount: invoice.payments
-      .filter(p => p.status === 'pending')
-      .reduce((sum, p) => sum + (Number(p.amount_received) || 0), 0),
-  } : { totalPaid: 0, pendingAmount: 0 };
+  // Payment summary from invoice.amount_paid (consistent with public page)
+  const totalPaid = Number(invoice?.amount_paid || 0);
+  const pendingAmount = invoice?.payments
+    ? invoice.payments
+        .filter(p => p.status === 'pending')
+        .reduce((sum, p) => sum + (Number(p.amount_received) || 0), 0)
+    : 0;
+  const amountDue = Math.max(0, (invoice?.total || 0) - totalPaid);
 
-  const amountDue = (invoice?.total || 0) - paymentSummary.totalPaid;
+  // Public preview URL
+  const publicUrl = invoice?.public_token
+    ? `${window.location.origin}/invoice/${invoice.public_token}`
+    : null;
 
-  // Handle PDF download
+  // Handlers
   const handleDownloadPDF = async () => {
     setIsDownloading(true);
     try {
@@ -108,16 +121,13 @@ const InvoiceDetail = () => {
     setIsDownloading(false);
   };
 
-  // Handle send invoice success
   const handleSendSuccess = () => {
-    // Auto mark as sent if still draft
     if (invoice.status === 'draft') {
       updateStatus.mutate({ id, status: 'sent' });
     }
     refetch();
   };
 
-  // Handle status change
   const handleStatusChange = (newStatus) => {
     setPendingStatus(newStatus);
     setShowStatusModal(true);
@@ -133,7 +143,6 @@ const InvoiceDetail = () => {
     }
   };
 
-  // Handle delete
   const handleDelete = async () => {
     try {
       await deleteInvoice.mutateAsync(id);
@@ -143,7 +152,24 @@ const InvoiceDetail = () => {
     }
   };
 
-  // Loading state
+  const handleGenerateLink = async () => {
+    const result = await createPaymentLink(id);
+    if (result.success) {
+      refetch();
+    }
+  };
+
+  const handleCopy = async (text, label) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyFeedback(label);
+      setTimeout(() => setCopyFeedback(null), 2000);
+    } catch (err) {
+      console.error('Copy failed:', err);
+    }
+  };
+
+  // Loading + error states
   if (isLoading) {
     return (
       <div className="portal-page">
@@ -152,7 +178,6 @@ const InvoiceDetail = () => {
     );
   }
 
-  // Error state
   if (error || !invoice) {
     return (
       <div className="portal-page">
@@ -172,12 +197,14 @@ const InvoiceDetail = () => {
     );
   }
 
-  // Determine available actions based on status
+  // Available actions
   const canEdit = invoice.status === 'draft';
   const canDelete = invoice.status === 'draft';
-  const canSend = ['draft', 'sent'].includes(invoice.status);
+  const canSend = ['draft', 'sent', 'partially_paid'].includes(invoice.status);
   const canMarkSent = invoice.status === 'draft';
-  const canMarkPaid = ['sent', 'overdue'].includes(invoice.status);
+  const canMarkPaid = ['sent', 'overdue', 'partially_paid'].includes(invoice.status);
+  const canGenerateLink =
+    invoice.status !== 'paid' && invoice.status !== 'cancelled' && Boolean(invoice.client?.email);
 
   return (
     <div className="portal-page portal-invoice-detail">
@@ -188,7 +215,6 @@ const InvoiceDetail = () => {
         backLabel="Invoices"
         actions={
           <div className="invoice-actions">
-            {/* Download PDF - always available */}
             <Button
               variant="secondary"
               icon={DownloadIcon}
@@ -198,7 +224,6 @@ const InvoiceDetail = () => {
               Download PDF
             </Button>
 
-            {/* Send Invoice */}
             {canSend && (
               <Button
                 variant="primary"
@@ -209,7 +234,6 @@ const InvoiceDetail = () => {
               </Button>
             )}
 
-            {/* Mark as Sent (manual) */}
             {canMarkSent && (
               <Button
                 variant="secondary"
@@ -219,7 +243,6 @@ const InvoiceDetail = () => {
               </Button>
             )}
 
-            {/* Mark as Paid */}
             {canMarkPaid && (
               <Button
                 variant="primary"
@@ -230,7 +253,6 @@ const InvoiceDetail = () => {
               </Button>
             )}
 
-            {/* Edit (drafts only) */}
             {canEdit && (
               <Button
                 variant="ghost"
@@ -241,7 +263,6 @@ const InvoiceDetail = () => {
               </Button>
             )}
 
-            {/* Delete (drafts only) */}
             {canDelete && (
               <Button
                 variant="ghost"
@@ -256,115 +277,15 @@ const InvoiceDetail = () => {
       />
 
       <div className="invoice-detail__grid">
-        {/* Invoice Preview */}
+        {/* Invoice Preview (shared component) */}
         <div className="invoice-detail__preview">
-          <Card padding="none">
-            <div className="invoice-preview">
-              {/* Header */}
-              <div className="invoice-preview__header">
-                <div className="invoice-preview__company">
-                  <h2>{companyName}</h2>
-                  {companyEmail && <p>{companyEmail}</p>}
-                  {companyAddress && <p>{companyAddress}</p>}
-                </div>
-                <div className="invoice-preview__meta">
-                  <StatusBadge status={invoice.status} size="lg" />
-                  <h1 className="invoice-preview__number">{invoice.invoice_number}</h1>
-                </div>
-              </div>
-
-              {/* Details */}
-              <div className="invoice-preview__details">
-                <div className="invoice-preview__client">
-                  <h4>Bill To</h4>
-                  <p className="invoice-preview__client-name">
-                    {invoice.client?.name || 'No client'}
-                  </p>
-                  {invoice.client?.company && (
-                    <p>{invoice.client.company}</p>
-                  )}
-                  {invoice.client?.email && (
-                    <p>{invoice.client.email}</p>
-                  )}
-                  {invoice.client?.location && (
-                    <p>{invoice.client.location}</p>
-                  )}
-                </div>
-                <div className="invoice-preview__info">
-                  <div className="invoice-preview__info-row">
-                    <span>Issue Date</span>
-                    <span>{formatDate(invoice.issue_date)}</span>
-                  </div>
-                  <div className="invoice-preview__info-row">
-                    <span>Due Date</span>
-                    <span>{formatDate(invoice.due_date)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Line Items */}
-              <div className="invoice-preview__items">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th>Qty</th>
-                      <th>Price</th>
-                      <th>Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoice.items?.map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.description}</td>
-                        <td>{item.quantity}</td>
-                        <td>{formatCurrency(item.unit_price, invoice.currency)}</td>
-                        <td>{formatCurrency(item.amount, invoice.currency)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Totals */}
-              <div className="invoice-preview__totals">
-                <div className="invoice-preview__totals-row">
-                  <span>Subtotal</span>
-                  <span>{formatCurrency(invoice.subtotal, invoice.currency)}</span>
-                </div>
-                {invoice.tax_amount > 0 && (
-                  <div className="invoice-preview__totals-row">
-                    <span>Tax ({invoice.tax_rate}%)</span>
-                    <span>{formatCurrency(invoice.tax_amount, invoice.currency)}</span>
-                  </div>
-                )}
-                <div className="invoice-preview__totals-row invoice-preview__totals-row--total">
-                  <span>Total</span>
-                  <span>{formatCurrency(invoice.total, invoice.currency)}</span>
-                </div>
-                {paymentSummary.totalPaid > 0 && (
-                  <>
-                    <div className="invoice-preview__totals-row invoice-preview__totals-row--paid">
-                      <span>Paid</span>
-                      <span>-{formatCurrency(paymentSummary.totalPaid, invoice.currency)}</span>
-                    </div>
-                    <div className="invoice-preview__totals-row invoice-preview__totals-row--due">
-                      <span>Amount Due</span>
-                      <span>{formatCurrency(amountDue, invoice.currency)}</span>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Notes */}
-              {invoice.notes && (
-                <div className="invoice-preview__notes">
-                  <h4>Notes</h4>
-                  <p>{invoice.notes}</p>
-                </div>
-              )}
-            </div>
-          </Card>
+          <InvoicePreview
+            invoice={invoice}
+            companyName={companyName}
+            companyEmail={companyEmail}
+            companyAddress={companyAddress}
+            companyLogo={companyLogo}
+          />
         </div>
 
         {/* Sidebar */}
@@ -378,12 +299,12 @@ const InvoiceDetail = () => {
               </div>
               <div className="invoice-summary__row invoice-summary__row--success">
                 <span>Paid</span>
-                <span>{formatCurrency(paymentSummary.totalPaid, invoice.currency)}</span>
+                <span>{formatCurrency(totalPaid, invoice.currency)}</span>
               </div>
-              {paymentSummary.pendingAmount > 0 && (
+              {pendingAmount > 0 && (
                 <div className="invoice-summary__row invoice-summary__row--warning">
                   <span>Pending</span>
-                  <span>{formatCurrency(paymentSummary.pendingAmount, invoice.currency)}</span>
+                  <span>{formatCurrency(pendingAmount, invoice.currency)}</span>
                 </div>
               )}
               <div className="invoice-summary__row invoice-summary__row--due">
@@ -392,6 +313,102 @@ const InvoiceDetail = () => {
               </div>
             </div>
           </Card>
+
+          {/* Payment Link + Public Preview */}
+          <Card title="Payment Link" padding="md">
+            {invoice.status === 'paid' ? (
+              <p style={{ margin: 0, fontSize: '0.875rem', color: '#999' }}>
+                Invoice paid. The checkout link is no longer active.
+              </p>
+            ) : invoice.payment_link_url ? (
+              <div className="payment-link-section">
+                <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8125rem', color: '#999' }}>
+                  Provider: {invoice.payment_link_provider || 'flutterwave'}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleCopy(invoice.payment_link_url, 'checkout')}
+                  >
+                    {copyFeedback === 'checkout' ? 'Copied' : 'Copy Checkout Link'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(invoice.payment_link_url, '_blank')}
+                  >
+                    Open Checkout
+                  </Button>
+                  {canGenerateLink && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleGenerateLink}
+                      loading={creatingLink}
+                    >
+                      Regenerate Link
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : canGenerateLink ? (
+              <div>
+                <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#999' }}>
+                  Generate a Flutterwave hosted checkout link the client can pay with.
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={handleGenerateLink}
+                  loading={creatingLink}
+                  disabled={!invoice.client?.email}
+                  fullWidth
+                >
+                  Generate Payment Link
+                </Button>
+                {!invoice.client?.email && (
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8125rem', color: '#c54b1a' }}>
+                    Client email required.
+                  </p>
+                )}
+                {linkError && (
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8125rem', color: '#c54b1a' }}>
+                    {linkError}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p style={{ margin: 0, fontSize: '0.875rem', color: '#999' }}>
+                Payment link cannot be generated for this invoice.
+              </p>
+            )}
+          </Card>
+
+          {/* Public Preview Link (always available once invoice is saved) */}
+          {publicUrl && (
+            <Card title="Public Preview" padding="md">
+              <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#999' }}>
+                Shareable link showing the invoice + payment options.
+              </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleCopy(publicUrl, 'public')}
+                fullWidth
+              >
+                {copyFeedback === 'public' ? 'Copied' : 'Copy Public Link'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open(publicUrl, '_blank')}
+                fullWidth
+                style={{ marginTop: '0.5rem' }}
+              >
+                Preview
+              </Button>
+            </Card>
+          )}
 
           {/* Payments */}
           <Card
@@ -492,9 +509,9 @@ const InvoiceDetail = () => {
         }
       >
         <p>
-          {pendingStatus === 'sent' && 
+          {pendingStatus === 'sent' &&
             `This will mark the invoice as sent. The client should have received it.`}
-          {pendingStatus === 'paid' && 
+          {pendingStatus === 'paid' &&
             `This will mark the invoice as fully paid. Use this if you've received payment outside the system.`}
         </p>
       </Modal>

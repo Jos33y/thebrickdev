@@ -1,8 +1,18 @@
 /**
  * InvoicePDF - PDF document for invoice generation
- * 
+ *
  * Uses @react-pdf/renderer to create professional PDFs.
- * Now accepts companyInfo as prop from Settings instead of hardcoded COMPANY_INFO
+ * Accepts companyInfo as prop from Settings instead of hardcoded values.
+ *
+ * Renders:
+ *  - Company logo (BrickMark SVG)
+ *  - Header with invoice number, status, project reference
+ *  - Bill-to block + issue/due date + project reference
+ *  - Line items table
+ *  - Totals with optional Paid + Amount Due rows (for partial payments)
+ *  - PAY NOW clickable link section (only if unpaid + payment_link_url exists)
+ *  - Notes block
+ *  - Footer
  */
 
 import {
@@ -13,6 +23,7 @@ import {
   StyleSheet,
   Svg,
   Rect,
+  Link,
 } from '@react-pdf/renderer';
 
 // PDF Styles
@@ -24,7 +35,7 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     backgroundColor: '#ffffff',
   },
-  
+
   // Header
   header: {
     flexDirection: 'row',
@@ -89,6 +100,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#dbeafe',
     color: '#2563eb',
   },
+  statusPartial: {
+    backgroundColor: '#fef3c7',
+    color: '#b45309',
+  },
 
   // Details section
   details: {
@@ -136,7 +151,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'Helvetica-Bold',
     color: '#1a1a1a',
-    width: 100,
+    width: 160,
     textAlign: 'right',
   },
 
@@ -194,10 +209,10 @@ const styles = StyleSheet.create({
   // Totals
   totalsContainer: {
     alignItems: 'flex-end',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   totalsBox: {
-    width: 220,
+    width: 240,
     backgroundColor: '#fafafa',
     padding: 16,
     borderRadius: 6,
@@ -216,6 +231,25 @@ const styles = StyleSheet.create({
     fontFamily: 'Courier',
     color: '#1a1a1a',
   },
+  totalsPaidLabel: {
+    fontSize: 10,
+    color: '#16a34a',
+  },
+  totalsPaidValue: {
+    fontSize: 10,
+    fontFamily: 'Courier',
+    color: '#16a34a',
+  },
+  totalsDueLabel: {
+    fontSize: 11,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1a1a1a',
+  },
+  totalsDueValue: {
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+    color: '#ea580c',
+  },
   totalsFinal: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -223,6 +257,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
     borderTopWidth: 2,
     borderTopColor: '#1a1a1a',
+  },
+  totalsSubTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    marginTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#d4d4d4',
   },
   totalsFinalLabel: {
     fontSize: 12,
@@ -233,6 +275,51 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Helvetica-Bold',
     color: '#ea580c',
+  },
+
+  // Payment CTA
+  paymentCta: {
+    marginTop: 10,
+    marginBottom: 20,
+    padding: 18,
+    backgroundColor: '#fff7ed',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fed7aa',
+  },
+  paymentCtaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  paymentCtaTitle: {
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1a1a1a',
+  },
+  paymentCtaAmount: {
+    fontSize: 14,
+    fontFamily: 'Helvetica-Bold',
+    color: '#ea580c',
+  },
+  paymentCtaButton: {
+    backgroundColor: '#c54b1a',
+    color: '#ffffff',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    textAlign: 'center',
+    fontSize: 11,
+    fontFamily: 'Helvetica-Bold',
+    textDecoration: 'none',
+    letterSpacing: 0.5,
+  },
+  paymentCtaHint: {
+    marginTop: 8,
+    fontSize: 8,
+    color: '#78716c',
+    textAlign: 'center',
   },
 
   // Notes
@@ -246,6 +333,77 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#444444',
     lineHeight: 1.6,
+  },
+
+  // Payments Received (audit trail for paid/partial invoices)
+  paymentsReceived: {
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e5e5',
+  },
+  paymentsTable: {
+    marginTop: 4,
+  },
+  paymentsHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f0fdf4',
+    borderBottomWidth: 1,
+    borderBottomColor: '#bbf7d0',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  paymentsRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0fdf4',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+  },
+  paymentsColDate: {
+    flex: 1.4,
+  },
+  paymentsColMethod: {
+    flex: 1.6,
+  },
+  paymentsColRef: {
+    flex: 3,
+  },
+  paymentsColAmount: {
+    flex: 1.5,
+    textAlign: 'right',
+  },
+  paymentsHeaderText: {
+    fontSize: 8,
+    fontFamily: 'Helvetica-Bold',
+    color: '#166534',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  paymentsCellText: {
+    fontSize: 9,
+    color: '#1a1a1a',
+  },
+  paymentsCellRef: {
+    fontSize: 8,
+    fontFamily: 'Courier',
+    color: '#4a4a4a',
+  },
+  paymentsCellAmount: {
+    fontSize: 9,
+    fontFamily: 'Courier',
+    color: '#16a34a',
+  },
+  paymentsSummary: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+    paddingRight: 8,
+  },
+  paymentsSummaryText: {
+    fontSize: 9,
+    fontFamily: 'Helvetica-Bold',
+    color: '#166534',
   },
 
   // Footer
@@ -268,7 +426,7 @@ const BrickMarkLogo = ({ size = 40 }) => {
   const scale = size / 40;
   const width = 48 * scale;
   const height = 40 * scale;
-  
+
   return (
     <Svg width={width} height={height} viewBox="0 0 48 40">
       {/* Top row - 2 orange bricks */}
@@ -304,6 +462,71 @@ const formatDate = (dateString) => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
+/**
+ * Format payment method label based on type + details
+ * Example outputs: "Card (Flutterwave)", "UK Bank (Flutterwave)", "USDT / Solana", "Bank Transfer"
+ */
+const formatPaymentMethod = (payment) => {
+  const type = payment.payment_type;
+
+  if (type === 'platform') {
+    const platform = payment.platform_details?.platform || 'platform';
+    const method = payment.platform_details?.payment_method;
+    const platformLabel = platform.charAt(0).toUpperCase() + platform.slice(1);
+
+    if (method === 'card') return `Card (${platformLabel})`;
+    if (method?.includes('account')) return `Bank (${platformLabel})`;
+    if (method === 'apple_pay') return `Apple Pay (${platformLabel})`;
+    if (method) return `${method} (${platformLabel})`;
+    return platformLabel;
+  }
+
+  if (type === 'bank') {
+    const bank = payment.bank_details?.bank_name;
+    return bank ? `Bank Transfer (${bank})` : 'Bank Transfer';
+  }
+
+  if (type === 'crypto') {
+    const cryptoType = payment.crypto_details?.crypto_type || 'Crypto';
+    const network = payment.crypto_details?.network;
+    return network && network !== 'other' ? `${cryptoType} / ${network}` : cryptoType;
+  }
+
+  return type || 'Payment';
+};
+
+/**
+ * Format payment reference based on type
+ * Prefers human-readable provider ref (flw_ref for Flutterwave, transferId
+ * for Wise, etc.) - most useful for verification with banks/compliance teams.
+ * Falls back to numeric provider ID, then our internal tx_ref.
+ */
+const formatPaymentRef = (payment) => {
+  const type = payment.payment_type;
+
+  if (type === 'platform') {
+    const providerRef = payment.platform_details?.provider_reference;
+    const providerId = payment.platform_details?.provider_transaction_id;
+    const ourRef = payment.platform_details?.transaction_reference;
+    return providerRef || providerId || ourRef || '—';
+  }
+
+  if (type === 'bank') {
+    return payment.bank_details?.reference_number || '—';
+  }
+
+  if (type === 'crypto') {
+    const hash = payment.crypto_details?.transaction_hash;
+    // Truncate long hashes for PDF readability
+    if (hash && hash.length > 24) {
+      return `${hash.slice(0, 12)}…${hash.slice(-8)}`;
+    }
+    return hash || '—';
+  }
+
+  return '—';
+};
+
 // Default company info fallback
 const DEFAULT_COMPANY = {
   name: 'My Business',
@@ -314,14 +537,14 @@ const DEFAULT_COMPANY = {
 
 /**
  * Invoice PDF Document Component
- * 
+ *
  * @param {Object} invoice - Invoice data with client and items
  * @param {Object} companyInfo - Company info from Settings (optional, has defaults)
  */
 const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
   const client = invoice.client || {};
   const items = invoice.items || [];
-  
+
   // Merge with defaults
   const company = {
     ...DEFAULT_COMPANY,
@@ -338,11 +561,25 @@ const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
   const getStatusStyle = () => {
     if (invoice.status === 'paid') return styles.statusPaid;
     if (invoice.status === 'sent') return styles.statusSent;
+    if (invoice.status === 'partially_paid') return styles.statusPartial;
     return {};
   };
 
   // Website for footer (strip protocol)
   const websiteDisplay = company.website?.replace(/^https?:\/\//, '') || '';
+
+  // Payment calculations
+  const total = Number(invoice.total || 0);
+  const amountPaid = Number(invoice.amount_paid || 0);
+  const amountDue = Math.max(0, total - amountPaid);
+  const hasPayments = amountPaid > 0;
+  const isFullyPaid = invoice.status === 'paid' || amountDue === 0;
+  const canPay = !isFullyPaid && Boolean(invoice.payment_link_url);
+
+  // Format status label for display (partially_paid → Partially Paid)
+  const statusLabel = (invoice.status || 'draft')
+    .replace(/_/g, ' ')
+    .toUpperCase();
 
   return (
     <Document>
@@ -366,7 +603,7 @@ const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
             <Text style={styles.invoiceLabel}>Invoice</Text>
             <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
             <View style={[styles.statusBadge, getStatusStyle()]}>
-              <Text>{(invoice.status || 'draft').toUpperCase()}</Text>
+              <Text>{statusLabel}</Text>
             </View>
           </View>
         </View>
@@ -389,6 +626,12 @@ const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
               <Text style={styles.infoLabel}>Due Date</Text>
               <Text style={styles.infoValue}>{formatDate(invoice.due_date)}</Text>
             </View>
+            {invoice.project_reference && (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Project</Text>
+                <Text style={styles.infoValue}>{invoice.project_reference}</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -440,8 +683,81 @@ const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
                 {formatCurrency(invoice.total, invoice.currency)}
               </Text>
             </View>
+
+            {/* Partial payment rows - only if some payment has been received */}
+            {hasPayments && (
+              <>
+                <View style={[styles.totalsRow, { marginTop: 8 }]}>
+                  <Text style={styles.totalsPaidLabel}>Paid</Text>
+                  <Text style={styles.totalsPaidValue}>
+                    -{formatCurrency(amountPaid, invoice.currency)}
+                  </Text>
+                </View>
+                <View style={styles.totalsSubTop}>
+                  <Text style={styles.totalsDueLabel}>Amount Due</Text>
+                  <Text style={styles.totalsDueValue}>
+                    {formatCurrency(amountDue, invoice.currency)}
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
         </View>
+
+        {/* Payment CTA - only render if there's still money to collect and a link exists */}
+        {canPay && (
+          <View style={styles.paymentCta}>
+            <View style={styles.paymentCtaHeader}>
+              <Text style={styles.paymentCtaTitle}>Ready to pay?</Text>
+              <Text style={styles.paymentCtaAmount}>
+                {formatCurrency(amountDue, invoice.currency)}
+              </Text>
+            </View>
+            <Link src={invoice.payment_link_url} style={styles.paymentCtaButton}>
+              PAY NOW
+            </Link>
+            <Text style={styles.paymentCtaHint}>
+              Secure checkout by Flutterwave. Card and UK bank transfer accepted.
+            </Text>
+          </View>
+        )}
+
+        {/* Payments Received - audit trail (visible when any payment recorded) */}
+        {invoice.payments && invoice.payments.length > 0 && (
+          <View style={styles.paymentsReceived}>
+            <Text style={styles.sectionLabel}>Payments Received</Text>
+            <View style={styles.paymentsTable}>
+              <View style={styles.paymentsHeaderRow}>
+                <Text style={[styles.paymentsHeaderText, styles.paymentsColDate]}>Date</Text>
+                <Text style={[styles.paymentsHeaderText, styles.paymentsColMethod]}>Method</Text>
+                <Text style={[styles.paymentsHeaderText, styles.paymentsColRef]}>Reference</Text>
+                <Text style={[styles.paymentsHeaderText, styles.paymentsColAmount]}>Amount</Text>
+              </View>
+              {invoice.payments.map((payment, i) => (
+                <View key={payment.id || i} style={styles.paymentsRow}>
+                  <Text style={[styles.paymentsCellText, styles.paymentsColDate]}>
+                    {formatDate(payment.received_date)}
+                  </Text>
+                  <Text style={[styles.paymentsCellText, styles.paymentsColMethod]}>
+                    {formatPaymentMethod(payment)}
+                  </Text>
+                  <Text style={[styles.paymentsCellRef, styles.paymentsColRef]}>
+                    {formatPaymentRef(payment)}
+                  </Text>
+                  <Text style={[styles.paymentsCellAmount, styles.paymentsColAmount]}>
+                    {formatCurrency(payment.amount_received, payment.currency_received)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <View style={styles.paymentsSummary}>
+              <Text style={styles.paymentsSummaryText}>
+                Total received: {formatCurrency(amountPaid, invoice.currency)}
+                {!isFullyPaid && ` · Balance due: ${formatCurrency(amountDue, invoice.currency)}`}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Notes */}
         {invoice.notes && (

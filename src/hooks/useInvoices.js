@@ -1,8 +1,13 @@
 /**
  * useInvoices - Hook for invoice data operations
- * 
+ *
  * Uses TanStack Query for caching and mutations.
  * Handles invoices, line items, and related calculations.
+ *
+ * fetchInvoice now includes joined payment sub-details
+ * (payment_platform_details, payment_bank_details, payment_crypto_details)
+ * so the PDF download can render the full "Payments Received" section
+ * with correct references (flw_ref, TxHash, bank NIP, etc.).
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -29,7 +34,26 @@ const fetchInvoices = async () => {
 };
 
 /**
- * Fetch single invoice with client and line items
+ * Normalize FK-joined sub-details from Supabase.
+ * Supabase returns arrays for FK relations even when they're logically 1:1.
+ * This flattens the array (or leaves objects as-is) so consumers can use
+ * `payment.platform_details?.provider_reference` etc. directly.
+ */
+const normalizeSubDetails = (payment) => ({
+  ...payment,
+  platform_details: Array.isArray(payment.platform_details)
+    ? (payment.platform_details[0] || null)
+    : (payment.platform_details || null),
+  bank_details: Array.isArray(payment.bank_details)
+    ? (payment.bank_details[0] || null)
+    : (payment.bank_details || null),
+  crypto_details: Array.isArray(payment.crypto_details)
+    ? (payment.crypto_details[0] || null)
+    : (payment.crypto_details || null),
+});
+
+/**
+ * Fetch single invoice with client, line items, and payments (with sub-details)
  */
 const fetchInvoice = async (id) => {
   // Fetch invoice with client
@@ -53,14 +77,24 @@ const fetchInvoice = async (id) => {
 
   if (itemsError) throw itemsError;
 
-  // Fetch payments
-  const { data: payments, error: paymentsError } = await supabase
+  // Fetch payments WITH joined type-specific details
+  // (platform_details for Flutterwave/Wise/Grey, bank_details for direct
+  // transfers, crypto_details for USDT/etc.)
+  const { data: rawPayments, error: paymentsError } = await supabase
     .from('payments')
-    .select('*')
+    .select(`
+      *,
+      platform_details:payment_platform_details(*),
+      bank_details:payment_bank_details(*),
+      crypto_details:payment_crypto_details(*)
+    `)
     .eq('invoice_id', id)
     .order('received_date', { ascending: false });
 
   if (paymentsError) throw paymentsError;
+
+  // Normalize FK-joined sub-details from array-form to object-form
+  const payments = (rawPayments || []).map(normalizeSubDetails);
 
   return { ...invoice, items, payments };
 };
@@ -195,7 +229,7 @@ const deleteInvoice = async (id) => {
  */
 const updateInvoiceStatus = async ({ id, status }) => {
   const updates = { status };
-  
+
   // Add timestamp for sent status
   if (status === 'sent') {
     updates.sent_at = new Date().toISOString();

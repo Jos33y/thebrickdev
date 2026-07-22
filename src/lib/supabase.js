@@ -1,25 +1,28 @@
 /**
  * Supabase Client Configuration
- * 
+ *
  * This is the single source of truth for the Supabase connection.
  * Import `supabase` anywhere you need database or auth access.
+ *
+ * Uses the new publishable key format (sb_publishable_...) which
+ * replaces the legacy anon JWT key.
  */
 
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Validate environment variables are present
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!supabaseUrl || !supabasePublishableKey) {
   throw new Error(
     'Missing Supabase environment variables. ' +
-    'Please check that VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in .env.local'
+    'Please check that VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are set in .env.local'
   );
 }
 
 // Create the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   auth: {
     // Persist session in localStorage
     persistSession: true,
