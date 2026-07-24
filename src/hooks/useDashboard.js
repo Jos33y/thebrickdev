@@ -57,11 +57,13 @@ const fetchDashboardData = async () => {
     supabase
       .from('payments')
       .select('id, amount_received, currency_received, received_date, status, payment_type')
-      .eq('status', 'cleared'),
+      .eq('status', 'cleared')
+      .eq('is_test', false),
     supabase
       .from('invoices')
       .select('id, invoice_number, client_id, total, currency, status, due_date, issue_date, clients(name)')
-      .neq('status', 'draft'),
+      .neq('status', 'draft')
+      .eq('is_test', false),
     supabase
       .from('clients')
       .select('id, status'),
