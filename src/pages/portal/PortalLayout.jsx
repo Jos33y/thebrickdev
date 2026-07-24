@@ -19,6 +19,33 @@ import {
   LogoutIcon,
 } from '../../components/common/Icons';
 
+// Inline CalculatorIcon — TODO: move to components/common/Icons.jsx
+const CalculatorIcon = ({ size = 18, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <rect x="4" y="2" width="16" height="20" rx="2" />
+    <line x1="8" y1="6" x2="16" y2="6" />
+    <line x1="16" y1="14" x2="16" y2="18" />
+    <path d="M16 10h.01" />
+    <path d="M12 10h.01" />
+    <path d="M8 10h.01" />
+    <path d="M12 14h.01" />
+    <path d="M8 14h.01" />
+    <path d="M12 18h.01" />
+    <path d="M8 18h.01" />
+  </svg>
+);
+
 const PortalLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -37,6 +64,7 @@ const PortalLayout = () => {
     { path: '/portal/clients', label: 'Clients', icon: ClientsIcon },
     { path: '/portal/invoices', label: 'Invoices', icon: InvoiceIcon },
     { path: '/portal/payments', label: 'Payments', icon: PaymentIcon },
+    { path: '/portal/fee-calculator', label: 'Fee Calculator', icon: CalculatorIcon },
     { path: '/portal/settings', label: 'Settings', icon: SettingsIcon },
   ];
 

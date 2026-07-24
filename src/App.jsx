@@ -3,9 +3,6 @@
  *
  * Routes:
  * - / : Public portfolio site
- * - /terms : Terms and Conditions
- * - /refund-policy : Refund Policy
- * - /privacy-policy : Privacy Policy
  * - /invoice/:token : Public invoice preview (client-facing, no auth)
  * - /portal/* : Private admin portal
  */
@@ -14,11 +11,6 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { PageLoader } from './components/common';
 import Home from './pages/Home';
-
-// Legal pages
-import Terms from './pages/Terms';
-import RefundPolicy from './pages/RefundPolicy';
-import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Public invoice preview
 import PublicInvoice from './pages/PublicInvoice';
@@ -43,6 +35,7 @@ import ProspectDetail from './pages/portal/ProspectDetail';
 import ProspectEdit from './pages/portal/ProspectEdit';
 import ProspectsKanban from './pages/portal/ProspectsKanban';
 import Settings from './pages/portal/Settings';
+import FeeCalculator from './pages/portal/FeeCalculator';
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -67,11 +60,6 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-
-          {/* Legal Pages */}
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Public invoice preview - shareable client-facing link */}
           <Route path="/invoice/:token" element={<PublicInvoice />} />
@@ -109,6 +97,9 @@ function App() {
             <Route path="payments/new" element={<PaymentCreate />} />
             <Route path="payments/:id" element={<PaymentDetail />} />
             <Route path="payments/:id/edit" element={<PaymentEdit />} />
+
+            {/* Fee Calculator */}
+            <Route path="fee-calculator" element={<FeeCalculator />} />
 
             {/* Settings */}
             <Route path="settings" element={<Settings />} />

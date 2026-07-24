@@ -29,3 +29,4 @@
 
 /* Public-facing invoice preview (/invoice/:token) */
 @import './public-invoice.css';
+@import './fee-calculator.css';
