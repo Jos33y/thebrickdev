@@ -1,6 +1,14 @@
 /**
  * Header - Main navigation header
  * Fixed position with blur backdrop
+ *
+ * Nav supports two link types:
+ *   - kind: 'scroll' - hash-based smooth scroll to section on home page
+ *   - kind: 'route'  - react-router Link to a real page (About, etc.)
+ *
+ * When user is on a non-home page and clicks a scroll link, the header
+ * performs a full navigation to '/' + hash so the browser natively
+ * scrolls to the anchor on home. Not SPA-smooth in that case, but reliable.
  */
 
 import { useState, useEffect } from 'react';
@@ -11,6 +19,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const isHome = location.pathname === '/';
 
   // Handle scroll effect
   useEffect(() => {
@@ -40,26 +49,62 @@ const Header = () => {
   }, [isMenuOpen]);
 
   const navLinks = [
-    { href: '#work', label: 'Work' },
-    { href: '#services', label: 'Services' },
-    { href: '#pricing', label: 'Pricing' },
-    { href: '#contact', label: 'Contact' },
+    { href: '#work', label: 'Work', kind: 'scroll' },
+    { href: '#services', label: 'Services', kind: 'scroll' },
+    { href: '#pricing', label: 'Pricing', kind: 'scroll' },
+    { href: '/about', label: 'About', kind: 'route' },
+    { href: '#contact', label: 'Contact', kind: 'scroll' },
   ];
 
-  const scrollToSection = (e, href) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+  // For scroll links: smooth-scroll if on home, else navigate home with hash
+  const handleScrollClick = (e, href) => {
+    if (isHome) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }
+    // If not on home, let the browser navigate to '/' + hash natively
     setIsMenuOpen(false);
+  };
+
+  // Href for scroll links depends on current page
+  const scrollHref = (hash) => (isHome ? hash : '/' + hash);
+
+  // Renders a single nav link — route or scroll — with proper element
+  const renderNavLink = (link, className, tabIndex) => {
+    if (link.kind === 'route') {
+      return (
+        <Link
+          key={link.href}
+          to={link.href}
+          className={className}
+          tabIndex={tabIndex}
+          onClick={() => setIsMenuOpen(false)}
+        >
+          {link.label}
+        </Link>
+      );
+    }
+    return (
+      <a
+        key={link.href}
+        href={scrollHref(link.href)}
+        className={className}
+        tabIndex={tabIndex}
+        onClick={(e) => handleScrollClick(e, link.href)}
+      >
+        {link.label}
+      </a>
+    );
   };
 
   return (
@@ -75,24 +120,15 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="header-nav" aria-label="Main navigation">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="header-nav-link"
-                  onClick={(e) => scrollToSection(e, link.href)}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) => renderNavLink(link, 'header-nav-link'))}
             </nav>
 
             {/* Actions */}
             <div className="header-actions">
               <a
-                href="#contact"
+                href={scrollHref('#contact')}
                 className="btn btn-primary btn-sm"
-                onClick={(e) => scrollToSection(e, '#contact')}
+                onClick={(e) => handleScrollClick(e, '#contact')}
                 style={{ display: 'none' }}
                 data-desktop-only
               >
@@ -119,23 +155,15 @@ const Header = () => {
         aria-label="Mobile navigation"
         aria-hidden={!isMenuOpen}
       >
-        {navLinks.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className="mobile-nav-link"
-            onClick={(e) => scrollToSection(e, link.href)}
-            tabIndex={isMenuOpen ? 0 : -1}
-          >
-            {link.label}
-          </a>
-        ))}
+        {navLinks.map((link) =>
+          renderNavLink(link, 'mobile-nav-link', isMenuOpen ? 0 : -1)
+        )}
 
         <div className="mobile-nav-cta">
           <a
-            href="#contact"
+            href={scrollHref('#contact')}
             className="btn btn-primary btn-lg"
-            onClick={(e) => scrollToSection(e, '#contact')}
+            onClick={(e) => handleScrollClick(e, '#contact')}
             tabIndex={isMenuOpen ? 0 : -1}
             style={{ width: '100%' }}
           >

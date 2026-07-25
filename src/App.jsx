@@ -12,6 +12,12 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-route
 import { PageLoader } from './components/common';
 import Home from './pages/Home';
 
+// Legal & company pages
+import Terms from './pages/Terms';
+import RefundPolicy from './pages/RefundPolicy';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import About from './pages/About';
+
 // Public invoice preview
 import PublicInvoice from './pages/PublicInvoice';
 
@@ -60,6 +66,12 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
+
+          {/* Legal & Company Pages */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/about" element={<About />} />
 
           {/* Public invoice preview - shareable client-facing link */}
           <Route path="/invoice/:token" element={<PublicInvoice />} />

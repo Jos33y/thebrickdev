@@ -36,6 +36,7 @@ const Footer = () => {
   ];
 
   const legalLinks = [
+    { to: '/about', label: 'About Us' },
     { to: '/terms', label: 'Terms and Conditions' },
     { to: '/refund-policy', label: 'Refund Policy' },
     { to: '/privacy-policy', label: 'Privacy Policy' },
@@ -105,10 +106,31 @@ const Footer = () => {
               <div className="footer-business-line">6 Funmilayo Awodiya Close</div>
               <div className="footer-business-line">Ige Estate, Ajasa/Amikanle</div>
               <div className="footer-business-line">Lagos, Nigeria</div>
-              <a href="tel:+2347037344408" className="footer-business-line footer-business-link">
+
+              <a
+                href="tel:+2347037344408"
+                className="footer-business-line footer-business-link"
+              >
                 +234 703 734 4408
+                <span className="footer-business-tag">Call · SMS</span>
               </a>
-              <a href={`mailto:${contact.email}`} className="footer-business-line footer-business-link">
+
+              <a
+                href={`https://wa.me/2348162438553?text=${encodeURIComponent(
+                  "Hi, I'm interested in discussing a project with The Brick Dev."
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-business-line footer-business-link"
+              >
+                +234 816 243 8553
+                <span className="footer-business-tag">WhatsApp</span>
+              </a>
+
+              <a
+                href={`mailto:${contact.email}`}
+                className="footer-business-line footer-business-link"
+              >
                 {contact.email}
               </a>
             </address>
