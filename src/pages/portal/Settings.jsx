@@ -69,6 +69,7 @@ const Settings = () => {
   if (settings && !companyForm) {
     setCompanyForm({
       company_name: settings.company_name || '',
+      proprietor_name: settings.proprietor_name || '',
       company_email: settings.company_email || '',
       company_phone: settings.company_phone || '',
       company_address: settings.company_address || '',
@@ -183,21 +184,31 @@ const Settings = () => {
                 placeholder="Your Business Name"
               />
               <Input
+                label="Proprietor Name"
+                value={companyForm.proprietor_name}
+                onChange={(e) => setCompanyForm({ ...companyForm, proprietor_name: e.target.value })}
+                placeholder="e.g. Joseph Lagbalu"
+                hint="Shown on invoices under the company name. Ties CAC identity to business documents for verification."
+              />
+            </div>
+
+            <div className="settings__form-grid">
+              <Input
                 label="Email"
                 type="email"
                 value={companyForm.company_email}
                 onChange={(e) => setCompanyForm({ ...companyForm, company_email: e.target.value })}
                 placeholder="hello@example.com"
               />
-            </div>
-
-            <div className="settings__form-grid">
               <Input
                 label="Phone"
                 value={companyForm.company_phone}
                 onChange={(e) => setCompanyForm({ ...companyForm, company_phone: e.target.value })}
                 placeholder="+1 234 567 8900"
               />
+            </div>
+
+            <div className="settings__form-grid">
               <Input
                 label="Tax ID / VAT"
                 value={companyForm.tax_id}

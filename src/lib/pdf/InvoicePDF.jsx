@@ -61,6 +61,13 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     marginBottom: 4,
   },
+  companyProprietor: {
+    fontSize: 10,
+    fontFamily: 'Helvetica-Bold',
+    color: '#4a4a4a',
+    marginBottom: 6,
+    letterSpacing: 0.2,
+  },
   companyInfo: {
     fontSize: 9,
     color: '#666666',
@@ -530,6 +537,7 @@ const formatPaymentRef = (payment) => {
 // Default company info fallback
 const DEFAULT_COMPANY = {
   name: 'My Business',
+  proprietor: '',
   email: '',
   address: '',
   website: '',
@@ -592,6 +600,9 @@ const InvoicePDF = ({ invoice, companyInfo = DEFAULT_COMPANY }) => {
             </View>
             <View>
               <Text style={styles.companyName}>{company.name}</Text>
+              {company.proprietor && (
+                <Text style={styles.companyProprietor}>{company.proprietor}</Text>
+              )}
               {company.email && <Text style={styles.companyInfo}>{company.email}</Text>}
               {companyAddress && <Text style={styles.companyInfo}>{companyAddress}</Text>}
               {company.website && (

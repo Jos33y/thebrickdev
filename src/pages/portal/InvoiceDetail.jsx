@@ -87,6 +87,7 @@ const InvoiceDetail = () => {
 
   // Get company info from settings
   const companyName = settings?.company_name || 'My Business';
+  const companyProprietor = settings?.proprietor_name || '';
   const companyEmail = settings?.company_email || '';
   // Fall back to the public brand mark if no logo is set in settings
   const companyLogo = settings?.logo_url || '/apple-touch-icon.png';
@@ -114,7 +115,14 @@ const InvoiceDetail = () => {
   const handleDownloadPDF = async () => {
     setIsDownloading(true);
     try {
-      await downloadInvoicePDF(invoice);
+      const companyInfo = {
+        name: companyName,
+        proprietor: companyProprietor,
+        email: companyEmail,
+        address: companyAddress,
+        website: settings?.company_website || '',
+      };
+      await downloadInvoicePDF(invoice, companyInfo);
     } catch (err) {
       console.error('Failed to download PDF:', err);
     }
@@ -282,6 +290,7 @@ const InvoiceDetail = () => {
           <InvoicePreview
             invoice={invoice}
             companyName={companyName}
+            companyProprietor={companyProprietor}
             companyEmail={companyEmail}
             companyAddress={companyAddress}
             companyLogo={companyLogo}

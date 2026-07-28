@@ -52,6 +52,7 @@ const PublicInvoice = () => {
       // Pass company info from RPC (public page doesn't have useSettings access)
       const companyInfo = {
         name: data.company.company_name,
+        proprietor: data.company.proprietor_name,
         email: data.company.company_email,
         website: data.company.company_website,
         country: data.company.company_country,
@@ -93,6 +94,7 @@ const PublicInvoice = () => {
   const { invoice, company } = data;
 
   const companyName = company.company_name || 'The Brick Dev Studios';
+  const companyProprietor = company.proprietor_name || '';
   const companyEmail = company.company_email || 'hello@thebrickdev.com';
   const companyAddress = company.company_country || '';
   // Fall back to the public brand mark if no logo is set in settings.
@@ -200,6 +202,7 @@ const PublicInvoice = () => {
         <InvoicePreview
           invoice={invoice}
           companyName={companyName}
+          companyProprietor={companyProprietor}
           companyEmail={companyEmail}
           companyAddress={companyAddress}
           companyLogo={companyLogo}

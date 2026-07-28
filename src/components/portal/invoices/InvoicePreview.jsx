@@ -18,6 +18,7 @@ import { formatCurrency, formatDate } from '../../../lib/formatters';
 const InvoicePreview = ({
   invoice,
   companyName,
+  companyProprietor,
   companyEmail,
   companyAddress,
   companyLogo,
@@ -43,6 +44,14 @@ const InvoicePreview = ({
               />
             )}
             <h2>{companyName}</h2>
+            {companyProprietor && (
+              <p
+                className="invoice-preview__proprietor"
+                style={{ fontWeight: 600, color: '#4a4a4a', marginTop: 2 }}
+              >
+                {companyProprietor}
+              </p>
+            )}
             {companyEmail && <p>{companyEmail}</p>}
             {companyAddress && <p>{companyAddress}</p>}
           </div>

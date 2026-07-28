@@ -22,6 +22,7 @@ const fetchSettings = async () => {
     if (error.code === 'PGRST116') {
       return {
         company_name: 'The Brick Dev Studios',
+        proprietor_name: 'Joseph Lagbalu',
         company_email: 'hello@thebrickdev.com',
         company_phone: '',
         company_address: '',
