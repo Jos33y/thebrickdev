@@ -755,7 +755,7 @@ app.use('/cv', (req, res, next) => {
 });
 
 app.get(['/cv', '/cv/'], (req, res) => {
-  res.redirect(302, '/cv/Joseph-Lagbalu-CV.pdf');
+  res.redirect(302, '/cv/Joseph-Lagbalu-CV-2026.pdf');
 });
 
 // Serve Vite build output
