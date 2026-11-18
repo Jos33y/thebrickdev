@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Private areas: the client portal and public invoice links
+Disallow: /portal
+Disallow: /invoice
+
+# /cv is deliberately NOT listed here. Crawlers must be able to fetch it to see
+# the "X-Robots-Tag: noindex" header that keeps the CV out of search results.

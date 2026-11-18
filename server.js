@@ -747,6 +747,17 @@ app.post('/api/webhooks/flutterwave', async (req, res) => {
 
 // ─── STATIC FILES ─────────────────────────────────────────────
 
+// ─── CV ───────────────────────────────────────────────────────
+// Keep the CV out of search results, and give it a short link.
+app.use('/cv', (req, res, next) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+
+app.get(['/cv', '/cv/'], (req, res) => {
+  res.redirect(302, '/cv/Joseph-Lagbalu-CV.pdf');
+});
+
 // Serve Vite build output
 app.use(express.static(path.join(__dirname, 'dist')));
 
